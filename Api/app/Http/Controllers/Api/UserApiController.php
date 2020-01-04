@@ -38,7 +38,7 @@ class UserApiController extends BaseApiController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
+            'name' => 'required|max:255|unique:users,name',
             'type' => 'required|integer',
         ], []);
 

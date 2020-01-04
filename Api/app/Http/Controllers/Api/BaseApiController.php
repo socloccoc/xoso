@@ -35,6 +35,7 @@ class BaseApiController extends Controller
     public function sendError($error, $code = 404)
     {
         $response = [
+            'success' => false,
             'message' => $error,
         ];
 

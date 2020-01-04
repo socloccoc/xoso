@@ -18,6 +18,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
-    // Routes Language
     Route::resource('user', 'UserApiController');
+    Route::resource('customer', 'CustomerApiController');
+    Route::post('getCustomerByUser', [
+        'as' => 'customer.by.user',
+        'uses' => 'CustomerApiController@getCustomerByUser',
+    ]);
 });
