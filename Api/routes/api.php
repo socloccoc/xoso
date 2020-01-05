@@ -20,6 +20,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
     // user
     Route::resource('user', 'UserApiController');
+    Route::post('checkUserExist', [
+        'as' => 'user.check',
+        'uses' => 'UserApiController@checkUserExist',
+    ]);
 
     // customer
     Route::resource('customer', 'CustomerApiController');

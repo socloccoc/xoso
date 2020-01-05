@@ -10,27 +10,6 @@ use Validator;
 class UserApiController extends BaseApiController
 {
     /**
-     * Index
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function index()
-    {
-
-    }
-
-    /**
-     * Show
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-
-    }
-
-    /**
      * Store
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
@@ -50,7 +29,7 @@ class UserApiController extends BaseApiController
             $data = [
                 'name' => $request['name'],
                 'type' => $request['type'],
-                'key'  => $this->random_strings(10)
+                'key'  => $this->random_strings(6)
             ];
             $user = User::create($data);
             if ($user) {
@@ -62,24 +41,28 @@ class UserApiController extends BaseApiController
     }
 
     /**
-     * Update
+     * Check user exist
      * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-
-    }
-
-    /**
-     * Destroy
-     * @param $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function checkUserExist(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'user_key' => 'required|size:6',
+        ], []);
 
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
+        }
+        try {
+            $user = User::where('key', $request['user_key'])->first();
+            if (empty($user)) {
+                return $this->sendError('User không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+            return $this->sendResponse($user, Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
     }
 
     private function random_strings($length_of_string)

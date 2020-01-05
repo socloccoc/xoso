@@ -55,7 +55,7 @@ class CustomerDailyApiController extends BaseApiController
     public function getListCustomerDaily(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_key'   => 'required|size:10',
+            'user_key'   => 'required|size:6',
             'daily_date' => 'required'
         ], []);
 

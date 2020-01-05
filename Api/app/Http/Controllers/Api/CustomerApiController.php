@@ -39,7 +39,7 @@ class CustomerApiController extends BaseApiController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_key'    => 'required|size:10',
+            'user_key'    => 'required|size:6',
             'name'        => 'required|max:255|unique:customers,name',
             'lo_rate'     => 'required',
             'de_rate'     => 'required',
@@ -85,7 +85,7 @@ class CustomerApiController extends BaseApiController
     public function getCustomerByUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_key' => 'required|size:10',
+            'user_key' => 'required|size:6',
         ], []);
 
         if ($validator->fails()) {

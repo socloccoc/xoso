@@ -13,6 +13,12 @@ use Validator;
 
 class TicketApiController extends BaseApiController
 {
+    /**
+     * Lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc, đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
+     * Và update lại money in của customer_daily_id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -68,13 +74,111 @@ class TicketApiController extends BaseApiController
     }
 
     /**
-     * lấy dữ liệu theo 1 trong 2 trường customer_daily_id, Daily_date. ( truyền lên cái nào sẽ lấy theo cái đó)
-     *
+     * Lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc, đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
+     * update lại money in của customer_daily_id
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $ticket = Ticket::where('id', $id)->first();
+        if (empty($ticket)) {
+            $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
+        }
+        $validator = Validator::make($request->all(), [
+            'chuoi_so'  => 'required|max:255',
+            'diem_tien' => 'required|numeric',
+            'type'      => 'required|integer',
+            'fee'       => 'required|numeric',
+            'profit'    => 'required|numeric',
+        ], []);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
+        }
+
+        // lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc
+        $curentTime = Carbon::now()->format('H:i');
+        if ($curentTime > '18:14' && $curentTime < '18:41') {
+            if ($this->checkLoXien($request['type'])) {
+                return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
+        if ($curentTime > '18:26' && $curentTime < '18:41') {
+            if ($this->checkDeVaBacang($request['type'])) {
+                return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        try {
+            $data = [
+                'chuoi_so'  => $request['chuoi_so'],
+                'diem_tien' => $request['diem_tien'],
+                'type'      => $request['type'],
+                'fee'       => $request['fee'],
+                'profit'    => $request['profit'],
+            ];
+
+            $ticket = Ticket::where('id', $id)->limit(1)->update($data);
+            if ($ticket) {
+                return $this->sendResponse($ticket, Response::HTTP_OK);
+            }
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Ticket chỉ xoá trước 18h14 với type(0,2,3,4,5,6) và 18h26 với type(1,7) trong cùng ngày
+     * và update lại money in của customer_daily_id. sau thời gian đó không thể xoá
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        try {
+            $ticket = Ticket::where('id', $id)->first();
+            if (empty($ticket)) {
+                $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+            // lô và xiên(type: 0,2,3,4,5,6) chỉ xóa được trước 18h14 cùng ngày
+            $curentDate = Carbon::now()->format('Y-m-d');
+            $curentTime = Carbon::now()->format('H:i');
+            if (substr($ticket['updated_at'], 0, 10) != $curentDate) {
+                return $this->sendError('Ticket đã quá hạn, không thể xóa !', Response::HTTP_BAD_REQUEST);
+            }
+
+            if ($curentTime < '18:14') {
+                if ($this->checkLoXien($ticket['type'])) {
+                    return $this->sendError('Lô và Xiên chỉ được xóa trước 18h14 cùng ngày !', Response::HTTP_BAD_REQUEST);
+                }
+            }
+
+            // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
+            if ($curentTime < '18:26') {
+                if ($this->checkDeVaBacang($ticket['type'])) {
+                    return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h26 cùng ngày!', Response::HTTP_BAD_REQUEST);
+                }
+            }
+            $ticket = Ticket::where('id', $id)->delete();
+            return $this->sendResponse($ticket, Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Lấy dữ liệu theo 1 trong 2 trường customer_daily_id, Daily_date. ( truyền lên cái nào sẽ lấy theo cái đó)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function getTickets(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_key'          => 'required|size:10',
+            'user_key'          => 'required|size:6',
             'customer_daily_id' => 'required|integer',
         ], []);
 
