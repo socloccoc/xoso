@@ -8,4 +8,5 @@ class Daily extends Model
 {
     protected $guarded = [];
     protected $table = 'dailies';
+    public $timestamps = false;
 }

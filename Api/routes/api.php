@@ -18,10 +18,35 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
+    // user
     Route::resource('user', 'UserApiController');
+
+    // customer
     Route::resource('customer', 'CustomerApiController');
     Route::post('getCustomerByUser', [
         'as' => 'customer.by.user',
         'uses' => 'CustomerApiController@getCustomerByUser',
     ]);
+
+    // daily
+    Route::resource('daily', 'DailyApiController');
+    Route::get('dailyLatestDate', [
+        'as' => 'daily.latest.date',
+        'uses' => 'DailyApiController@dailyLatestDate',
+    ]);
+
+    // customer_daily
+    Route::resource('customerDaily', 'CustomerDailyApiController');
+    Route::post('getListCustomerDaily', [
+        'as' => 'customer.daily.list',
+        'uses' => 'CustomerDailyApiController@getListCustomerDaily',
+    ]);
+
+    // ticket
+    Route::resource('ticket', 'TicketApiController');
+    Route::post('getTickets', [
+        'as' => 'tickets',
+        'uses' => 'TicketApiController@getTickets',
+    ]);
+
 });

@@ -15,9 +15,8 @@ class CreateDailiesTable extends Migration
     {
         Schema::create('dailies', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->date('date');
-            $table->timestamps();
+            $table->string('date');
+            $table->text('result')->nullable();
         });
     }
 

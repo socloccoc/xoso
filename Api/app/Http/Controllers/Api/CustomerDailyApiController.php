@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Customer;
+use App\Models\CustomerDaily;
+use App\Models\Daily;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,122 +12,88 @@ use Validator;
 
 class CustomerDailyApiController extends BaseApiController
 {
-    /**
-     * Index
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function index()
-    {
-
-    }
-
-    /**
-     * Show
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-
-    }
-
-    /**
-     * Store
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
+        $daily = Daily::orderBy('id', 'DESC')->limit(1)->first();
+        if (empty($daily)) {
+            $this->sendError('Không tìm thấy bản ghi nào!', Response::HTTP_NOT_FOUND);
+        }
+
         $validator = Validator::make($request->all(), [
-            'customer_id'    => 'required',
-            'name'        => 'required|max:255|unique:customer_dailies,name',
-            'lo_rate'     => 'required',
-            'de_rate'     => 'required',
-            'de_percent'  => 'required',
-            'xien_rate'   => 'required',
-            'bacang_rate' => 'required'
+            'customer_id' => 'required',
+            'name'        => 'required|max:255'
         ], []);
 
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
         }
 
+        $cutomerById = Customer::where('id', $request['customer_id'])->first();
+        if (empty($cutomerById)) {
+            return $this->sendError('Customer không tồn tại !', Response::HTTP_BAD_REQUEST);
+        }
         try {
-            $user = User::where('key', $request['user_key'])->first();
-            if (empty($user)) {
-                return $this->sendError('Username đã tồn tại!', Response::HTTP_BAD_REQUEST);
-            }
-
-//            $customerExist = Customer::where('user_id', $user['id'])->first();
-//            if (!empty($customerExist)) {
-//                return $this->sendError('User_key đã được sử dụng!', Response::HTTP_BAD_REQUEST);
-//            }
-
             $data = [
-                'user_id'     => $user['id'],
+                'daily_id'    => $daily['id'],
+                'customer_id' => $request['customer_id'],
                 'name'        => $request['name'],
-                'lo_rate'     => $request['lo_rate'],
-                'de_rate'     => $request['de_rate'],
-                'de_percent'  => $request['de_percent'],
-                'xien_rate'   => $request['xien_rate'],
-                'bacang_rate' => $request['bacang_rate'],
             ];
 
-            $customer = Customer::create($data);
-            if ($customer) {
-                return $this->sendResponse($customer, Response::HTTP_OK);
+            $customerDaily = CustomerDaily::create($data);
+            if ($customerDaily) {
+                return $this->sendResponse($customerDaily, Response::HTTP_OK);
             }
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
     }
 
-    public function getCustomerByUser(Request $request)
+    /**
+     * Danh sách lấy dựa theo user_key. nếu user_type = 0 => lấy toàn bộ customer_daily theo ngày.
+     * Nếu user_type = 1 => lấy customer_daily của user đó theo ngày
+     */
+    public function getListCustomerDaily(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_key' => 'required|size:10',
+            'user_key'   => 'required|size:10',
+            'daily_date' => 'required'
         ], []);
 
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
         }
-
         try {
+            // kiểm tra user có tồn tại hay không
             $user = User::where('key', $request['user_key'])->first();
             if (empty($user)) {
-                return $this->sendError('Username đã tồn tại!', Response::HTTP_BAD_REQUEST);
+                return $this->sendError('User không tồn tại !', Response::HTTP_NOT_FOUND);
             }
 
-            $customers = Customer::where('user_id', $user['id'])->get();
-            if ($customers) {
-                return $this->sendResponse($customers, Response::HTTP_OK);
+            $daily = Daily::where('date', $request['daily_date'])->first();
+            if (empty($daily)) {
+                return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
             }
+
+            if ($user['type'] == 0) {
+                $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->get();
+                return $this->sendResponse($customerDaily, Response::HTTP_OK);
+            }
+
+            // lấy ra danh sách customer theo user
+            $listCustomerByUser = Customer::where('user_id', $user['id'])->pluck('id')->toArray();
+            if (empty($listCustomerByUser)) {
+                return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+            }
+
+            // danh sách customer_daily theo customer
+            $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->get();
+            return $this->sendResponse($listCustomerDaily, Response::HTTP_OK);
+
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
-    }
-
-    /**
-     * Update
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
 
     }
 
-    /**
-     * Destroy
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-
-    }
 
 }

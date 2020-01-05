@@ -18,7 +18,7 @@ class CreateCustomerDailiesTable extends Migration
             $table->integer('daily_id');
             $table->integer('customer_id');
             $table->string('name');
-            $table->string('money_in');
+            $table->string('money_in')->nullable();
             $table->string('money_out')->nullable();
             $table->string('profit')->nullable();
             $table->timestamps();
