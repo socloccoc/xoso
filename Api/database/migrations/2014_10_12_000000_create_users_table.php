@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('key')->unique();
-            $table->integer('type');
+            $table->integer('type')->comment('0: admin, 1: user');
             $table->timestamps();
         });
     }

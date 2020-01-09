@@ -29,7 +29,7 @@ class UserApiController extends BaseApiController
             $data = [
                 'name' => $request['name'],
                 'type' => $request['type'],
-                'key'  => $this->random_strings(6)
+                'key'  => mt_rand(100000, 999999)
             ];
             $user = User::create($data);
             if ($user) {
@@ -63,12 +63,6 @@ class UserApiController extends BaseApiController
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
-    }
-
-    private function random_strings($length_of_string)
-    {
-        return substr(bin2hex(random_bytes($length_of_string)),
-            0, $length_of_string);
     }
 
 }

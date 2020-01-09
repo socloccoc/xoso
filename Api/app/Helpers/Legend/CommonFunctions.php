@@ -21,7 +21,7 @@ class CommonFunctions
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-            if($tls) {
+            if ($tls) {
                 curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'DES-CBC3-SHA');
             }
 
@@ -62,13 +62,13 @@ class CommonFunctions
                 throw new \Exception('failed to initialize');
             }
 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);// return web page
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);// return web page
             curl_setopt($ch, CURLOPT_HEADER, false);//don't return header
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);// follow redirects
             curl_setopt($ch, CURLOPT_ENCODING, "");// handle all encodings
             curl_setopt($ch, CURLOPT_USERAGENT, "spider");// who am i
             curl_setopt($ch, CURLOPT_AUTOREFERER, true);// set referer on redirect
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 120);// handle all encodings
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 120);// handle all encodings
             curl_setopt($ch, CURLOPT_TIMEOUT, 120);// timeout on response
             curl_setopt($ch, CURLOPT_MAXREDIRS, 10);// timeout on response
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// Disabled SSL Cert check
@@ -121,6 +121,7 @@ class CommonFunctions
 
 
     }
+
     public static function retrievePostPostMan($url, $data, $tls = true)
     {
         try {
@@ -136,7 +137,7 @@ class CommonFunctions
             curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 
-            if($tls) {
+            if ($tls) {
                 curl_setopt($curl, CURLOPT_SSL_CIPHER_LIST, 'DES-CBC3-SHA');
             }
 
@@ -145,19 +146,19 @@ class CommonFunctions
 
             curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => $data,
-                CURLOPT_HTTPHEADER => array(
+                CURLOPT_ENCODING       => "",
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 30,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => "POST",
+                CURLOPT_POSTFIELDS     => $data,
+                CURLOPT_HTTPHEADER     => array(
                     "accept: */*",
                     "cache-control: no-cache",
                     "content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
                     "postman-token: 3ccb57d0-037d-c835-9376-f575a2568d21"
                 ),
-        ));
+            ));
 
 
             $response = curl_exec($curl);
@@ -172,9 +173,9 @@ class CommonFunctions
             return $response;
         } catch (\Exception $e) {
             if (strpos($e->getMessage(), 'Operation timed out') !== false) {
-                 echo "Crawl again: ".$url.PHP_EOL;
-                 Log::info("Crawl again: ".$url);
-                 return self::retrievePostPostMan($url, $data, $tls = true);
+                echo "Crawl again: " . $url . PHP_EOL;
+                Log::info("Crawl again: " . $url);
+                return self::retrievePostPostMan($url, $data, $tls = true);
             }
 //            trigger_error(sprintf('Curl failed with error #%d: %s', $e->getCode(), $e->getMessage())
 //                , E_USER_ERROR);
@@ -205,25 +206,27 @@ class CommonFunctions
 
         return substr($string, $ini, $len);
     }
-    public static function convertArrayDataCrawl($data){
+
+    public static function convertArrayDataCrawl($data)
+    {
         $dataConvert = [];
         $first = 0;
         $data = array_values($data);
-        foreach ($data as $key=>$value){
-            if(self::classifyText($value) == 2){
+        foreach ($data as $key => $value) {
+            if (self::classifyText($value) == 2) {
                 $dataConvert[0] = $value;
                 $first = $key;
                 break;
             }
         }
-        for($i = $first+1; $i < count($data); $i++){
+        for ($i = $first + 1; $i < count($data); $i++) {
             if (self::classifyText($data[$i]) == 2) {
                 $dataConvert[] = $data[$i];
             }
-            if (self::classifyText($data[$i]) == 1 && self::classifyText($data[$i-1]) == 2) {
+            if (self::classifyText($data[$i]) == 1 && self::classifyText($data[$i - 1]) == 2) {
                 $dataConvert[] = $data[$i];
             }
-            if (self::classifyText($data[$i]) == 0 && self::classifyText($data[$i-1]) == 2) {
+            if (self::classifyText($data[$i]) == 0 && self::classifyText($data[$i - 1]) == 2) {
                 $dataConvert[] = $data[$i];
             }
         }
@@ -231,20 +234,21 @@ class CommonFunctions
     }
 
     /**
-     " "-> 0
-     "1.034" -> 1
-     "7. Chi phí tài chính" -> 2
-
+     * " "-> 0
+     * "1.034" -> 1
+     * "7. Chi phí tài chính" -> 2
      * @param $string
      */
-    public static function classifyText($string){
-        if (trim(str_replace(["\xC2\xA0"],"",$string)) == "") {
+    public static function classifyText($string)
+    {
+        if (trim(str_replace(["\xC2\xA0"], "", $string)) == "") {
             return 0;
-        }else if (trim(str_replace([".","-","\xC2\xA0"],"",$string)) == "") {
+        } else if (trim(str_replace([".", "-", "\xC2\xA0"], "", $string)) == "") {
             return 1;
         }
         return 2;
     }
+
     /**
      * Tra ve index cot cuoi cung ma chua null
      * den 5 thi tra ve 5; 6 la null
@@ -252,11 +256,167 @@ class CommonFunctions
      * @return int
      *
      */
-    public static function getIndexFinancialReportCurrent($quarterCurrent){
-        for ($i = 1; $i < 25 ; $i++){
+    public static function getIndexFinancialReportCurrent($quarterCurrent)
+    {
+        for ($i = 1; $i < 25; $i++) {
             if (!$quarterCurrent['column' . $i]) {
-                return ($i-1);
+                return ($i - 1);
             }
         }
+    }
+
+    public static function dauX($str)
+    {
+        $X = substr($str, -1);
+        $result = [];
+        for ($i = 0; $i < 10; $i++) {
+            $result[] = $X . $i;
+        }
+        return $result;
+    }
+
+    public static function ditX($str)
+    {
+        $X = substr($str, -1);
+        $result = [];
+        for ($i = 0; $i < 10; $i++) {
+            $result[] = $i . $X;
+        }
+        return $result;
+    }
+
+    /**
+     * BoXY: ( với X,Y là các số từ 0 đến 9) = 1 trong các bộ sau mà chứa cặp XY
+     * @param $str
+     * @return array
+     */
+    public static function boXY($str)
+    {
+        $result = [];
+        switch ($str) {
+            case 'bo00':
+                $result = ['00', '55', '05', '50'];
+                break;
+            case 'bo11':
+                $result = ['11', '66', '16', '61'];
+                break;
+            case 'bo22':
+                $result = ['22', '77', '27', '72'];
+                break;
+            case 'bo33':
+                $result = ['33', '88', '38', '83'];
+                break;
+            case 'bo44':
+                $result = ['44', '99', '49', '94'];
+                break;
+            case 'bo01':
+                $result = ['01', '10', '06', '60', '51', '15', '56', '65'];
+                break;
+            case 'bo02':
+                $result = ['02', '20', '07', '70', '25', '52', '57', '75'];
+                break;
+            case 'bo03':
+                $result = ['03', '30', '08', '80', '35', '53', '58', '85'];
+                break;
+            case 'bo04':
+                $result = ['04', '40', '09', '90', '45', '54', '59', '95'];
+                break;
+            case 'bo12':
+                $result = ['12', '21', '17', '71', '26', '62', '67', '76'];
+                break;
+            case 'bo13':
+                $result = ['13', '31', '18', '81', '36', '63', '68', '86'];
+                break;
+            case 'bo14':
+                $result = ['14', '41', '19', '91', '46', '64', '69', '96'];
+                break;
+            case 'bo23':
+                $result = ['23', '32', '28', '82', '37', '73', '78', '87'];
+                break;
+            case 'bo24':
+                $result = ['24', '42', '29', '92', '74', '47', '79', '97'];
+                break;
+            case 'bo34':
+                $result = ['34', '43', '39', '93', '84', '48', '89', '98'];
+                break;
+        }
+        return $result;
+    }
+
+    /**
+     * TongX: ( với X là các số từ 0 đến 9) = 1 trong các bộ Tổng sau mà chứa cặp X
+     * @param $str
+     * @return array
+     */
+    public static function tongX($str)
+    {
+        $result = [];
+        switch ($str) {
+            case 'tong1':
+                $result = ['01', '10', '29', '92', '38', '83', '47', '74', '65', '56'];
+                break;
+            case 'tong2':
+                $result = ['02', '20', '11', '39', '93', '48', '84', '57', '75', '66'];
+                break;
+            case 'tong3':
+                $result = ['03', '30', '12', '21', '49', '94', '58', '85', '67', '76'];
+                break;
+            case 'tong4':
+                $result = ['04', '40', '13', '31', '22', '59', '95', '68', '86', '77'];
+                break;
+            case 'tong5':
+                $result = ['05', '50', '14', '41', '23', '32', '69', '96', '78', '87'];
+                break;
+            case 'tong6':
+                $result = ['06', '60', '15', '51', '24', '42', '33', '79', '97', '88'];
+                break;
+            case 'tong7':
+                $result = ['07', '70', '16', '61', '25', '52', '34', '43', '89', '98'];
+                break;
+            case 'tong8':
+                $result = ['08', '80', '17', '71', '26', '62', '35', '53', '44', '99'];
+                break;
+            case 'tong9':
+                $result = ['09', '90', '18', '81', '27', '72', '36', '63', '45', '54'];
+                break;
+        }
+        return $result;
+    }
+
+    public static function kepBang()
+    {
+        return ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
+    }
+
+    public static function kepLech()
+    {
+        return ['05', '50', '16', '61', '27', '72', '38', '83', '49', '94'];
+    }
+
+    /**
+     * ChamX: ( với X,Y là các số từ 0 đến 9) = 1 trong các bộ “Chạm” sau mà chứa X
+     * Cham1 : 01,21,31,41,51,61,71,81,91,10,11,12,13,14,15,16,17,18,19 (19 cặp)
+     * @param $str
+     * @return array
+     */
+    public static function chamX($str)
+    {
+        $X = substr($str, -1);
+        $result = [];
+        for ($i = 0; $i < 10; $i++) {
+            $result[] = $i . $X;
+            $result[] = $X . $i;
+        }
+        return $result;
+    }
+
+    /**
+     * XYZ: (với X,Y,Z là các số từ 0 đến 9) = XY, YZ
+     * @param $str
+     * @return array
+     */
+    public static function xyz($str)
+    {
+        return [substr($str, 0, 2), substr($str, -2)];
     }
 }

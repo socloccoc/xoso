@@ -17,16 +17,16 @@ class CreateCustomersTable extends Migration
             $table->bigIncrements('id');
             $table->integer('user_id');
             $table->string('name');
-            $table->integer('lo_rate');
-            $table->integer('lo_percent')->nullable();
-            $table->integer('de_rate');
+            $table->float('lo_rate', 8, 2);
+            $table->integer('lo_percent')->default(8000);
+            $table->float('de_rate', 8, 2);
             $table->integer('de_percent');
-            $table->integer('xien_rate');
-            $table->integer('xien2_percent')->nullable();;
-            $table->integer('xien3_percent')->nullable();;
-            $table->integer('xien4_percent')->nullable();;
-            $table->integer('bacang_rate');
-            $table->integer('bacang_percent')->nullable();;
+            $table->float('xien_rate', 8, 2);
+            $table->integer('xien2_percent')->default(10);
+            $table->integer('xien3_percent')->default(40);
+            $table->integer('xien4_percent')->default(100);
+            $table->float('bacang_rate', 8, 2);
+            $table->integer('bacang_percent')->default(400);
             $table->timestamps();
         });
     }

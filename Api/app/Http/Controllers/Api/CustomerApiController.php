@@ -11,27 +11,6 @@ use Validator;
 class CustomerApiController extends BaseApiController
 {
     /**
-     * Index
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function index()
-    {
-
-    }
-
-    /**
-     * Show
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-
-    }
-
-    /**
      * Store
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
@@ -40,12 +19,12 @@ class CustomerApiController extends BaseApiController
     {
         $validator = Validator::make($request->all(), [
             'user_key'    => 'required|size:6',
-            'name'        => 'required|max:255|unique:customers,name',
-            'lo_rate'     => 'required',
-            'de_rate'     => 'required',
-            'de_percent'  => 'required',
-            'xien_rate'   => 'required',
-            'bacang_rate' => 'required'
+            'name'        => 'required|max:255',
+            'lo_rate'     => 'required|numeric',
+            'de_rate'     => 'required|numeric',
+            'de_percent'  => 'required|numeric',
+            'xien_rate'   => 'required|numeric',
+            'bacang_rate' => 'required|numeric'
         ], []);
 
         if ($validator->fails()) {
@@ -66,11 +45,11 @@ class CustomerApiController extends BaseApiController
             $data = [
                 'user_id'     => $user['id'],
                 'name'        => $request['name'],
-                'lo_rate'     => $request['lo_rate'],
-                'de_rate'     => $request['de_rate'],
-                'de_percent'  => $request['de_percent'],
-                'xien_rate'   => $request['xien_rate'],
-                'bacang_rate' => $request['bacang_rate'],
+                'lo_rate'     => floatval($request['lo_rate']),
+                'de_rate'     => floatval($request['de_rate']),
+                'de_percent'  => floatval($request['de_percent']),
+                'xien_rate'   => floatval($request['xien_rate']),
+                'bacang_rate' => floatval($request['bacang_rate']),
             ];
 
             $customer = Customer::create($data);
@@ -107,25 +86,5 @@ class CustomerApiController extends BaseApiController
         }
     }
 
-    /**
-     * Update
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-
-    }
-
-    /**
-     * Destroy
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-
-    }
 
 }
