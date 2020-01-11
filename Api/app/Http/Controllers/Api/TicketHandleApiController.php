@@ -147,7 +147,7 @@ class TicketHandleApiController extends BaseApiController
                 return $this->sendError($ex->getMessage(), Response::HTTP_NOT_FOUND);
             }
         }
-        $this->syntheticTicket();
+        $this->syntheticTicket($request['date']);
         return $this->sendResponse(1, Response::HTTP_OK);
     }
 
@@ -156,24 +156,20 @@ class TicketHandleApiController extends BaseApiController
         $currentDate = Carbon::now()->format('d-m-Y');
         $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
-            $this->info('Không tìm thấy daily !');
-            return;
+            return $this->sendError('Không tìm thấy daily !', Response::HTTP_NOT_FOUND);
         }
         $daily->update(['result' => $result]);
     }
 
-    public function syntheticTicket()
+    public function syntheticTicket($date)
     {
-        $currentDate = Carbon::now()->format('d-m-Y');
-        $daily = Daily::where('date', $currentDate)->first();
+        $daily = Daily::where('date', $date)->first();
         if (empty($daily)) {
-            $this->info('Không tìm thấy daily !');
-            return;
+            return $this->sendError('Không tìm thấy daily !', Response::HTTP_NOT_FOUND);
         }
         $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->get();
         if (empty($customerDaily)) {
-            $this->info('Không tìm thấy customerDaily !');
-            return;
+            return $this->sendError('Không tìm thấy customerDaily !', Response::HTTP_NOT_FOUND);
         }
 
         foreach ($customerDaily as $item) {
@@ -205,7 +201,7 @@ class TicketHandleApiController extends BaseApiController
     {
         $ticket = Ticket::where('id', $id)->limit(1)->update($ticket);
         if (!$ticket) {
-            $this->info('Cập nhật ticket thất bại');
+            return $this->sendError('Cập nhật ticket thất bại', Response::HTTP_NOT_FOUND);
         }
     }
 
