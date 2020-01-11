@@ -17,13 +17,13 @@ class CreateTicketsTable extends Migration
             $table->bigIncrements('id');
             $table->integer('customer_daily_id');
             $table->string('chuoi_so');
-            $table->float('diem_tien', 8, 2);
+            $table->float('diem_tien', 18, 2);
             $table->integer('type');
-            $table->float('sales', 8, 2)->nullable();
-            $table->float('fee', 8, 2);
+            $table->float('sales', 18, 2)->nullable();
+            $table->float('fee', 18, 2);
             $table->string('win')->nullable();
             $table->integer('win_num')->nullable();
-            $table->float('profit', 8, 2)->nullable();
+            $table->float('profit', 18, 2)->nullable();
             $table->timestamps();
         });
     }

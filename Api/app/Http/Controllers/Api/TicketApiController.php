@@ -217,6 +217,11 @@ class TicketApiController extends BaseApiController
 
     }
 
+    public function summaryOfResults(Request $request)
+    {
+
+    }
+
     public function checkLoXien($type)
     {
         $types = [0, 2, 3, 4, 5, 6];
