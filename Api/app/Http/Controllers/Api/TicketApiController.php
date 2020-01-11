@@ -274,11 +274,12 @@ class TicketApiController extends BaseApiController
             } else {
                 $users = User::all();
                 $response = [];
+
                 foreach ($users as $user) {
                     // lấy ra danh sách customer theo user
                     $listCustomerByUser = Customer::where('user_id', $user['id'])->pluck('id')->toArray();
                     if (empty($listCustomerByUser)) {
-                        return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+                        continue;
                     }
 
                     // danh sách customer_daily theo customer
