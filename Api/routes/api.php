@@ -24,6 +24,10 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'as' => 'user.check',
         'uses' => 'UserApiController@checkUserExist',
     ]);
+    Route::post('getUserByParam', [
+        'as' => 'user.getUserByParam',
+        'uses' => 'UserApiController@getUserByParam',
+    ]);
 
     // customer
     Route::resource('customer', 'CustomerApiController');
