@@ -69,6 +69,7 @@ class TicketApiController extends BaseApiController
 
             $ticket = Ticket::create($data);
             if ($ticket) {
+                $this->updateMoneyIn($request['customer_daily_id'], $request['fee']);
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
         } catch (\Exception $ex) {
@@ -106,14 +107,14 @@ class TicketApiController extends BaseApiController
         $curentTime = Carbon::now()->format('H:i');
         if ($curentTime > '18:14' && $curentTime < '18:41') {
             if ($this->checkLoXien($request['type'])) {
-                return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+                return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
             }
         }
 
         // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
         if ($curentTime > '18:26' && $curentTime < '18:41') {
             if ($this->checkDeVaBacang($request['type'])) {
-                return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+                return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -127,6 +128,7 @@ class TicketApiController extends BaseApiController
                 'profit'    => $request['profit'],
             ];
 
+            $this->updateMoneyIn($ticket['customer_daily_id'], $request['fee'] - $ticket['fee']);
             $ticket = Ticket::where('id', $id)->limit(1)->update($data);
             if ($ticket) {
                 return $this->sendResponse($ticket, Response::HTTP_OK);
@@ -156,20 +158,23 @@ class TicketApiController extends BaseApiController
                 return $this->sendError('Ticket đã quá hạn, không thể xóa !', Response::HTTP_BAD_REQUEST);
             }
 
-            if ($curentTime < '18:14') {
+            if ($curentTime > '18:14') {
                 if ($this->checkLoXien($ticket['type'])) {
                     return $this->sendError('Lô và Xiên chỉ được xóa trước 18h14 cùng ngày !', Response::HTTP_BAD_REQUEST);
                 }
             }
 
             // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
-            if ($curentTime < '18:26') {
+            if ($curentTime > '18:26') {
                 if ($this->checkDeVaBacang($ticket['type'])) {
                     return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h26 cùng ngày!', Response::HTTP_BAD_REQUEST);
                 }
             }
-            $ticket = Ticket::where('id', $id)->delete();
-            return $this->sendResponse($ticket, Response::HTTP_OK);
+            $ticketRemove = Ticket::where('id', $id)->delete();
+            if ($ticketRemove) {
+                $this->updateMoneyIn($ticket['customer_daily_id'], -$ticket['fee']);
+                return $this->sendResponse($ticketRemove, Response::HTTP_OK);
+            }
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
@@ -278,6 +283,13 @@ class TicketApiController extends BaseApiController
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
+    }
+
+    public function updateMoneyIn($customerDailyId, $money)
+    {
+        $customerDaily = CustomerDaily::where('id', $customerDailyId)->first();
+        $moneyIn = $customerDaily['money_in'] + $money;
+        $customerDaily->update(['money_in' => $moneyIn]);
     }
 
     public function checkLoXien($type)
