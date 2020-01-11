@@ -245,65 +245,36 @@ class TicketApiController extends BaseApiController
                 return $this->sendError('User không tồn tại !', Response::HTTP_NOT_FOUND);
             }
 
-            if ($user['type'] == 1) {
-                // lấy ra danh sách customer theo user
-                $listCustomerByUser = Customer::where('user_id', $user['id'])->pluck('id')->toArray();
-                if (empty($listCustomerByUser)) {
-                    return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+            // lấy ra danh sách customer theo user
+            $listCustomerByUser = Customer::where(function ($q) use ($user) {
+                if ($user['type'] == 1) {
+                    $q->where('user_id', $user['id']);
                 }
+            })->pluck('id')->toArray();
 
-                // danh sách customer_daily theo customer
-                $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->where('daily_id', $daily['id'])->pluck('id')->toArray();
-                if (empty($listCustomerDaily)) {
-                    return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
-                }
-
-                $tickets = Ticket::whereIn('customer_daily_id', $listCustomerDaily)->groupBy('type')
-                    ->selectRaw('type, sum(fee) as thuc_thu, sum(sales) as doanh_so, sum(win_num) as so_luong_trung, sum(profit) as tien_trung')
-                    ->get();
-                if (empty($tickets)) {
-                    return $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
-                }
-                $data = [];
-                foreach ($tickets as $ticket) {
-                    $ticket['date'] = $request['daily_date'];
-                    $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
-                    $data[] = $ticket;
-                }
-                return $this->sendResponse($data, Response::HTTP_OK);
-            } else {
-                $users = User::all();
-                $response = [];
-
-                foreach ($users as $user) {
-                    // lấy ra danh sách customer theo user
-                    $listCustomerByUser = Customer::where('user_id', $user['id'])->pluck('id')->toArray();
-                    if (empty($listCustomerByUser)) {
-                        continue;
-                    }
-
-                    // danh sách customer_daily theo customer
-                    $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->where('daily_id', $daily['id'])->pluck('id')->toArray();
-                    if (empty($listCustomerDaily)) {
-                        return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
-                    }
-
-                    $tickets = Ticket::whereIn('customer_daily_id', $listCustomerDaily)->groupBy('type')
-                        ->selectRaw('type, sum(fee) as thuc_thu, sum(sales) as doanh_so, sum(win_num) as so_luong_trung, sum(profit) as tien_trung')
-                        ->get();
-                    if (empty($tickets)) {
-                        return $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
-                    }
-                    $data = [];
-                    foreach ($tickets as $ticket) {
-                        $ticket['date'] = $request['daily_date'];
-                        $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
-                        $data[] = $ticket;
-                    }
-                    $response[$user['name']] = $data;
-                }
-                return $this->sendResponse($response, Response::HTTP_OK);
+            if (empty($listCustomerByUser)) {
+                return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
             }
+
+            // danh sách customer_daily theo customer
+            $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->where('daily_id', $daily['id'])->pluck('id')->toArray();
+            if (empty($listCustomerDaily)) {
+                return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+
+            $tickets = Ticket::whereIn('customer_daily_id', $listCustomerDaily)->groupBy('type')
+                ->selectRaw('type, sum(fee) as thuc_thu, sum(sales) as doanh_so, sum(win_num) as so_luong_trung, sum(profit) as tien_trung')
+                ->get();
+            if (empty($tickets)) {
+                return $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+            $data = [];
+            foreach ($tickets as $ticket) {
+                $ticket['date'] = $request['daily_date'];
+                $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
+                $data[] = $ticket;
+            }
+            return $this->sendResponse($data, Response::HTTP_OK);
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
