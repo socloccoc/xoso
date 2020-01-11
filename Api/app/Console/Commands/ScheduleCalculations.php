@@ -78,9 +78,10 @@ class ScheduleCalculations extends Command
 
     public function ticketHandle($result, $baCang)
     {
+        $yesterday = Carbon::now()->subDays(1)->format('Y-m-d');
         $currentDate = Carbon::now()->format('Y-m-d');
-        $tickets = Ticket::where('updated_at', '>', $currentDate . ' 00:00:00')
-            ->where('updated_at', '<', $currentDate . ' 23:59:59')
+        $tickets = Ticket::where('updated_at', '>', $yesterday . ' 18:40:00')
+            ->where('updated_at', '<', $currentDate . ' 22:40:00')
             ->get();
         if (empty($tickets)) {
             $this->info('Không tìm thấy ticket nào !');
@@ -209,17 +210,17 @@ class ScheduleCalculations extends Command
             $this->info('Không tìm thấy daily !');
             return;
         }
-        $customerDaiy = CustomerDaily::where('daily_id', $daily['id'])->get();
-        if (empty($customerDaiy)) {
+        $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->get();
+        if (empty($customerDaily)) {
             $this->info('Không tìm thấy customerDaily !');
             return;
         }
 
-        $data['money_in'] = 0;
-        $data['money_out'] = 0;
-        $data['profit'] = 0;
-        $data['match'] = "";
-        foreach ($customerDaiy as $item) {
+        foreach ($customerDaily as $item) {
+            $data['money_in'] = 0;
+            $data['money_out'] = 0;
+            $data['profit'] = 0;
+            $data['match'] = "";
             $tickets = Ticket::where('customer_daily_id', $item['id'])->get();
             if (empty($tickets)) {
                 continue;
