@@ -1,90 +1,49 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Http\Controllers\Api;
 
 use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
 use App\Models\Ticket;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use App\Helpers\Legend\CommonFunctions;
-use Symfony\Component\DomCrawler\Crawler;
 use drupol\phpermutations\Generators\Combinations;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class ScheduleCalculations extends Command
+class TicketHandleApiController extends BaseApiController
 {
     const PERCENT = [2 => 10, 3 => 40, 4 => 100];
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'calculate:start';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Tính lãi lỗ dựa vào ticket và kết quả sx lưu vào bảng profit_loss cho từng người 1';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function ticketHandle(Request $request)
     {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
-    {
-        $url = "https://xskt.com.vn/rss-feed/mien-bac-xsmb.rss";
-        $crawler = new Crawler(CommonFunctions::retrieveData($url, false));
-        try {
-            $result = "";
-            $crawler->filterXPath('//channel/item')->each(function ($node, $index) use (&$result) {
-                if ($index == 0) {
-                    $result = $node->filter('description')->text();
+        $daily = Daily::where('date', $request['date'])->first();
+        if (empty($daily)) {
+            return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
+        }
+        $result = str_replace(['-', 'ĐB:', '1:', '2:', '3:', '4:', '5:', '6:', '7:'], 'a', $daily['result']);
+        $result = explode('a', $result);
+        $data = [];
+        $baCang = 000;
+        if (!empty($result)) {
+            foreach ($result as $ind => $item) {
+                if ($ind == 1) {
+                    $baCang = substr(trim($item), -3);
                 }
-            });
-            $this->updateResultDaily($result);
-            $result = str_replace(['-', 'ĐB:', '1:', '2:', '3:', '4:', '5:', '6:', '7:'], 'a', $result);
-            $result = explode('a', $result);
-            $data = [];
-            $baCang = 000;
-            if (!empty($result)) {
-                foreach ($result as $ind => $item) {
-                    if ($ind == 1) {
-                        $baCang = substr(trim($item), -3);
-                    }
-                    if ($item !== "") {
-                        $data[] = substr(trim($item), -2);
-                    }
+                if ($item !== "") {
+                    $data[] = substr(trim($item), -2);
                 }
             }
-            $this->ticketHandle($data, $baCang);
-        } catch (\Exception $ex) {
-            $this->info($ex->getMessage());
         }
-    }
 
-    public function ticketHandle($result, $baCang)
-    {
-        $yesterday = Carbon::now()->subDays(1)->format('Y-m-d');
-        $currentDate = Carbon::now()->format('Y-m-d');
-        $tickets = Ticket::where('updated_at', '>', $yesterday . ' 18:40:00')
-            ->where('updated_at', '<', $currentDate . ' 18:40:00')
-            ->get();
+        $result = $data;
+
+        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+        $tickets = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
+
         if (empty($tickets)) {
-            $this->info('Không tìm thấy ticket nào !');
+            return $this->sendError('Không có ticket nào !', Response::HTTP_NOT_FOUND);
         }
         foreach ($tickets as $ticket) {
             try {
@@ -185,14 +144,15 @@ class ScheduleCalculations extends Command
                     $this->updateTiket($ticket['id'], $newTicket);
                 }
             } catch (\Exception $ex) {
-                $this->info($ex->getMessage());
-                continue;
+                return $this->sendError($ex->getMessage(), Response::HTTP_NOT_FOUND);
             }
         }
         $this->syntheticTicket();
+        return $this->sendResponse(1, Response::HTTP_OK);
     }
 
-    public function updateResultDaily($result){
+    public function updateResultDaily($result)
+    {
         $currentDate = Carbon::now()->format('d-m-Y');
         $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
@@ -336,5 +296,6 @@ class ScheduleCalculations extends Command
         $customer = Customer::where('id', $customerDaily['customer_id'])->first();
         return $customer;
     }
+
 
 }

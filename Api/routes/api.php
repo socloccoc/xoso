@@ -63,4 +63,10 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'uses' => 'TicketApiController@summaryOfResults',
     ]);
 
+    // Summary of results
+    Route::post('ticketHandle', [
+        'as' => 'ticketHandle',
+        'uses' => 'TicketHandleApiController@ticketHandle',
+    ]);
+
 });

@@ -28,6 +28,7 @@ class TicketApiController extends BaseApiController
             'diem_tien'         => 'required|numeric',
             'type'              => 'required|integer',
             'fee'               => 'required|numeric',
+            'sales'             => 'required|numeric',
             'profit'            => 'required|numeric',
         ], []);
 
@@ -62,6 +63,7 @@ class TicketApiController extends BaseApiController
                 'diem_tien'         => $request['diem_tien'],
                 'type'              => $request['type'],
                 'fee'               => $request['fee'],
+                'sales'             => $request['sales'],
                 'profit'            => $request['profit'],
             ];
 
@@ -92,6 +94,7 @@ class TicketApiController extends BaseApiController
             'diem_tien' => 'required|numeric',
             'type'      => 'required|integer',
             'fee'       => 'required|numeric',
+            'sales'     => 'required|numeric',
             'profit'    => 'required|numeric',
         ], []);
 
@@ -120,6 +123,7 @@ class TicketApiController extends BaseApiController
                 'diem_tien' => $request['diem_tien'],
                 'type'      => $request['type'],
                 'fee'       => $request['fee'],
+                'sales'     => $request['sales'],
                 'profit'    => $request['profit'],
             ];
 
