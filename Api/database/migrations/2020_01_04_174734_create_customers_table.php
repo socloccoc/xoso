@@ -18,7 +18,7 @@ class CreateCustomersTable extends Migration
             $table->integer('user_id');
             $table->string('name');
             $table->float('lo_rate', 18, 2);
-            $table->integer('lo_percent')->default(8000);
+            $table->integer('lo_percent')->default(80000);
             $table->float('de_rate', 18, 2);
             $table->integer('de_percent');
             $table->float('xien_rate', 18, 2);
