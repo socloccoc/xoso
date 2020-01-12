@@ -78,11 +78,14 @@ class ScheduleCalculations extends Command
 
     public function ticketHandle($result, $baCang)
     {
-        $yesterday = Carbon::now()->subDays(1)->format('Y-m-d');
-        $currentDate = Carbon::now()->format('Y-m-d');
-        $tickets = Ticket::where('updated_at', '>', $yesterday . ' 18:40:00')
-            ->where('updated_at', '<', $currentDate . ' 18:40:00')
-            ->get();
+        $currentDate = Carbon::now()->format('d-m-Y');
+        $daily = Daily::where('date', $currentDate)->first();
+        if (empty($daily)) {
+            $this->info('Daily không tồn tại !');
+            return;
+        }
+        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+        $tickets = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
         if (empty($tickets)) {
             $this->info('Không tìm thấy ticket nào !');
         }
@@ -92,6 +95,7 @@ class ScheduleCalculations extends Command
                 $newTicket['win'] = "";
                 $newTicket['win_num'] = 0;
                 $newTicket['profit'] = 0;
+                $newTicket['status'] = 1;
 
                 // đề
                 if ($ticket['type'] == 1) {
@@ -102,8 +106,8 @@ class ScheduleCalculations extends Command
                         $newTicket['win'] = $ind . ':' . $item;
                         $newTicket['win_num'] = $item;
                         $newTicket['profit'] = $profit;
-                        $this->updateTiket($ticket['id'], $newTicket);
                     }
+                    $this->updateTiket($ticket['id'], $newTicket);
                     continue;
                 }
 

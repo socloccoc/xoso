@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Customer;
+use App\Models\CustomerDaily;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,13 +35,12 @@ class CustomerApiController extends BaseApiController
         try {
             $user = User::where('key', $request['user_key'])->first();
             if (empty($user)) {
-                return $this->sendError('Username đã tồn tại!', Response::HTTP_BAD_REQUEST);
+                return $this->sendError('User không tồn tại!', Response::HTTP_NOT_FOUND);
             }
 
-//            $customerExist = Customer::where('user_id', $user['id'])->first();
-//            if (!empty($customerExist)) {
-//                return $this->sendError('User_key đã được sử dụng!', Response::HTTP_BAD_REQUEST);
-//            }
+            if($this->checkCustomerExist($user['id'], $request['name'])){
+                return $this->sendError('Customer đã tồn tại!', Response::HTTP_BAD_REQUEST);
+            }
 
             $data = [
                 'user_id'     => $user['id'],
@@ -74,7 +74,7 @@ class CustomerApiController extends BaseApiController
         try {
             $user = User::where('key', $request['user_key'])->first();
             if (empty($user)) {
-                return $this->sendError('Username đã tồn tại!', Response::HTTP_BAD_REQUEST);
+                return $this->sendError('User không tồn tại!', Response::HTTP_BAD_REQUEST);
             }
 
             $customers = Customer::where('user_id', $user['id'])->get();
@@ -84,6 +84,14 @@ class CustomerApiController extends BaseApiController
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
+    }
+
+    public function checkCustomerExist($userId, $name){
+        $customer = Customer::where('user_id', $userId)->where('name', $name)->first();
+        if(empty($customer)){
+            return false;
+        }
+        return true;
     }
 
 

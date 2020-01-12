@@ -86,9 +86,9 @@ class TicketApiController extends BaseApiController
      */
     public function update(Request $request, $id)
     {
-        $ticket = Ticket::where('id', $id)->first();
+        $ticket = Ticket::where('id', $id)->where('status', 0)->first();
         if (empty($ticket)) {
-            $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
+            $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
         }
         $validator = Validator::make($request->all(), [
             'chuoi_so'  => 'required|max:255',
@@ -147,9 +147,9 @@ class TicketApiController extends BaseApiController
     public function destroy($id)
     {
         try {
-            $ticket = Ticket::where('id', $id)->first();
+            $ticket = Ticket::where('id', $id)->where('status', 0)->first();
             if (empty($ticket)) {
-                $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
+                $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
             }
             // lô và xiên(type: 0,2,3,4,5,6) chỉ xóa được trước 18h14 cùng ngày
             $curentDate = Carbon::now()->format('Y-m-d');
@@ -164,7 +164,6 @@ class TicketApiController extends BaseApiController
                 }
             }
 
-            // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
             if ($curentTime > '18:26') {
                 if ($this->checkDeVaBacang($ticket['type'])) {
                     return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h26 cùng ngày!', Response::HTTP_BAD_REQUEST);

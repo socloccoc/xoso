@@ -24,6 +24,7 @@ class CreateTicketsTable extends Migration
             $table->string('win')->nullable();
             $table->integer('win_num')->nullable();
             $table->float('profit', 18, 2)->nullable();
+            $table->boolean('status')->default(0)->comment('0: chưa tính kết quả, 1: đã tính kết quả');
             $table->timestamps();
         });
     }
