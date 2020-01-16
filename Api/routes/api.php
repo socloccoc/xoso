@@ -56,6 +56,10 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'as' => 'tickets',
         'uses' => 'TicketApiController@getTickets',
     ]);
+    Route::post('getTicketByParam', [
+        'as' => 'ticket.by.param',
+        'uses' => 'TicketApiController@getTicketByParam',
+    ]);
 
     // Summary of results
     Route::post('summaryOfResults', [

@@ -151,24 +151,25 @@ class TicketApiController extends BaseApiController
             if (empty($ticket)) {
                 $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
             }
+            $daily = $this->getDailyByCustomerDaily($ticket['customer_daily_id']);
             // lô và xiên(type: 0,2,3,4,5,6) chỉ xóa được trước 18h14 cùng ngày
             $curentDate = Carbon::now()->format('Y-m-d');
             $curentTime = Carbon::now()->format('H:i');
-            if (substr($ticket['updated_at'], 0, 10) != $curentDate) {
-                return $this->sendError('Ticket đã quá hạn, không thể xóa !', Response::HTTP_BAD_REQUEST);
-            }
 
-            if ($curentTime > '18:14') {
-                if ($this->checkLoXien($ticket['type'])) {
-                    return $this->sendError('Lô và Xiên chỉ được xóa trước 18h14 cùng ngày !', Response::HTTP_BAD_REQUEST);
+            if($curentDate == $daily['date']){
+                if ($curentTime > '18:14') {
+                    if ($this->checkLoXien($ticket['type'])) {
+                        return $this->sendError('Lô và Xiên chỉ được xóa trước 18h14 cùng ngày !', Response::HTTP_BAD_REQUEST);
+                    }
+                }
+
+                if ($curentTime > '18:26') {
+                    if ($this->checkDeVaBacang($ticket['type'])) {
+                        return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h26 cùng ngày!', Response::HTTP_BAD_REQUEST);
+                    }
                 }
             }
 
-            if ($curentTime > '18:26') {
-                if ($this->checkDeVaBacang($ticket['type'])) {
-                    return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h26 cùng ngày!', Response::HTTP_BAD_REQUEST);
-                }
-            }
             $ticketRemove = Ticket::where('id', $id)->delete();
             if ($ticketRemove) {
                 $this->updateMoneyIn($ticket['customer_daily_id'], -$ticket['fee']);
@@ -225,6 +226,56 @@ class TicketApiController extends BaseApiController
         }
 
     }
+
+    public function getTicketByParam(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_key' => 'required|size:6',
+            'type'     => 'integer',
+            'date'     => 'required',
+        ], []);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
+        }
+        try {
+            // kiểm tra user có tồn tại hay không
+            $user = User::where('key', $request['user_key'])->first();
+            if (empty($user)) {
+                return $this->sendError('User không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+
+            $daily = Daily::where('date', $request['date'])->first();
+            if (empty($daily)) {
+                return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+
+            // lấy ra danh sách customer theo user
+            $listCustomerByUser = Customer::where(function ($q) use ($user){
+                if($user['type'] == 1){
+                    $q->where('user_id', $user['id']);
+                }
+            })->pluck('id')->toArray();
+
+            if (empty($listCustomerByUser)) {
+                return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+            }
+
+            // danh sách customer_daily theo customer
+            $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->where('daily_id', $daily['id'])->pluck('id')->toArray();
+            if (empty($listCustomerDaily)) {
+                return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
+            }
+
+            $tickets = Ticket::whereIn('customer_daily_id', $listCustomerDaily)->where('type', $request['type'])->get();
+            return $this->sendResponse($tickets, Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+
+    }
+
+
 
     public function summaryOfResults(Request $request)
     {
@@ -307,5 +358,12 @@ class TicketApiController extends BaseApiController
             return true;
         }
         return false;
+    }
+
+    public function getDailyByCustomerDaily($customerDailyId)
+    {
+        $customerDaily = CustomerDaily::where('id', $customerDailyId)->first();
+        $daily = Daily::where('id', $customerDaily['id'])->first();
+        return $daily;
     }
 }
