@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
+use App\Models\Point;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
+use drupol\phpermutations\Generators\Combinations;
 
 class TicketApiController extends BaseApiController
 {
@@ -66,16 +69,63 @@ class TicketApiController extends BaseApiController
                 'sales'             => $request['sales'],
                 'profit'            => $request['profit'],
             ];
-
+            DB::beginTransaction();
             $ticket = Ticket::create($data);
             if ($ticket) {
                 $this->updateMoneyIn($request['customer_daily_id'], $request['fee']);
+                $this->updatePoint($ticket, $ticket['diem_tien']);
+                DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
         } catch (\Exception $ex) {
+            DB::rollBack();
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
     }
+
+    public function updatePoint($ticket, $diemTien)
+    {
+        try {
+            $arrs = [];
+
+            // lô hoặc đề
+            if ($ticket['type'] == 1 || $ticket['type'] == 0) {
+                $arrs = $this->breakStringNumber($ticket['chuoi_so']);
+            }
+
+            // xiên hoặc ba càng
+            if ($ticket['type'] == 2 || $ticket['type'] == 4) {
+                $arrs = explode(',', $ticket['chuoi_so']);
+
+            }
+
+            // xiên quay
+            if ($ticket['type'] == 3) {
+                $arrs = $this->combinations($ticket['chuoi_so']);
+            }
+            if (!empty($arrs)) {
+                DB::beginTransaction();
+                foreach ($arrs as $arr) {
+                    if ($ticket['type'] == 3) {
+                        $arr = implode('-', $arr);
+                    }
+                    $point = Point::where('customer_daily_id', $ticket['customer_daily_id'])->where('num', $arr)->first();
+                    if (empty($point)) {
+                        Point::create(['customer_daily_id' => $ticket['customer_daily_id'], 'num' => $arr, 'diem_tien' => $diemTien]);
+                    } else {
+                        $diemTienNew = $point['diem_tien'] + $diemTien;
+                        $point->update(['diem_tien' => $diemTienNew]);
+                    }
+                }
+                DB::commit();
+            }
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+
+    }
+
 
     /**
      * Lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc, đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
@@ -86,39 +136,40 @@ class TicketApiController extends BaseApiController
      */
     public function update(Request $request, $id)
     {
-        $ticket = Ticket::where('id', $id)->where('status', 0)->first();
-        if (empty($ticket)) {
-            $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
-        }
-        $validator = Validator::make($request->all(), [
-            'chuoi_so'  => 'required|max:255',
-            'diem_tien' => 'required|numeric',
-            'type'      => 'required|integer',
-            'fee'       => 'required|numeric',
-            'sales'     => 'required|numeric',
-            'profit'    => 'required|numeric',
-        ], []);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
-        }
-
-        // lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc
-        $curentTime = Carbon::now()->format('H:i');
-        if ($curentTime > '18:14' && $curentTime < '18:41') {
-            if ($this->checkLoXien($request['type'])) {
-                return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
-            }
-        }
-
-        // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
-        if ($curentTime > '18:26' && $curentTime < '18:41') {
-            if ($this->checkDeVaBacang($request['type'])) {
-                return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
-            }
-        }
-
         try {
+            DB::beginTransaction();
+            $ticket = Ticket::where('id', $id)->where('status', 0)->first();
+            if (empty($ticket)) {
+                $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
+            }
+            $validator = Validator::make($request->all(), [
+                'chuoi_so'  => 'required|max:255',
+                'diem_tien' => 'required|numeric',
+                'type'      => 'required|integer',
+                'fee'       => 'required|numeric',
+                'sales'     => 'required|numeric',
+                'profit'    => 'required|numeric',
+            ], []);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
+            }
+
+            // lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc
+            $curentTime = Carbon::now()->format('H:i');
+            if ($curentTime > '18:14' && $curentTime < '18:41') {
+                if ($this->checkLoXien($request['type'])) {
+                    return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
+                }
+            }
+
+            // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
+            if ($curentTime > '18:26' && $curentTime < '18:41') {
+                if ($this->checkDeVaBacang($request['type'])) {
+                    return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
+                }
+            }
+
             $data = [
                 'chuoi_so'  => $request['chuoi_so'],
                 'diem_tien' => $request['diem_tien'],
@@ -129,11 +180,14 @@ class TicketApiController extends BaseApiController
             ];
 
             $this->updateMoneyIn($ticket['customer_daily_id'], $request['fee'] - $ticket['fee']);
+
             $ticket = Ticket::where('id', $id)->limit(1)->update($data);
             if ($ticket) {
+                DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
         } catch (\Exception $ex) {
+            DB::rollBack();
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
     }
@@ -147,6 +201,7 @@ class TicketApiController extends BaseApiController
     public function destroy($id)
     {
         try {
+            DB::beginTransaction();
             $ticket = Ticket::where('id', $id)->where('status', 0)->first();
             if (empty($ticket)) {
                 $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
@@ -173,9 +228,11 @@ class TicketApiController extends BaseApiController
             $ticketRemove = Ticket::where('id', $id)->delete();
             if ($ticketRemove) {
                 $this->updateMoneyIn($ticket['customer_daily_id'], -$ticket['fee']);
+                DB::commit();
                 return $this->sendResponse($ticketRemove, Response::HTTP_OK);
             }
         } catch (\Exception $ex) {
+            DB::rollBack();
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
     }
@@ -289,6 +346,7 @@ class TicketApiController extends BaseApiController
         }
 
         try {
+            DB::beginTransaction();
             $daily = Daily::where('date', $request['daily_date'])->first();
             if (empty($daily)) {
                 return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
@@ -329,8 +387,10 @@ class TicketApiController extends BaseApiController
                 $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
                 $data[] = $ticket;
             }
+            DB::commit();
             return $this->sendResponse($data, Response::HTTP_OK);
         } catch (\Exception $ex) {
+            DB::rollBack();
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
     }
@@ -365,5 +425,50 @@ class TicketApiController extends BaseApiController
         $customerDaily = CustomerDaily::where('id', $customerDailyId)->first();
         $daily = Daily::where('id', $customerDaily['id'])->first();
         return $daily;
+    }
+
+    public function breakStringNumber($str)
+    {
+        $str = explode(',', $str);
+        $result = [];
+        foreach ($str as $item) {
+            $item = strtolower($item);
+            if (strpos($item, 'dau') !== false) {
+                $result = array_merge($result, CommonFunctions::dauX($item));
+            } elseif
+            (strpos($item, 'dit') !== false) {
+                $result = array_merge($result, CommonFunctions::ditX($item));
+            } elseif (strpos($item, 'bo') !== false) {
+                $result = array_merge($result, CommonFunctions::boXY($item));
+            } elseif (strpos($item, 'tong') !== false) {
+                $result = array_merge($result, CommonFunctions::tongX($item));
+            } elseif (strpos($item, 'kepbang') !== false) {
+                $result = array_merge($result, CommonFunctions::kepBang());
+            } elseif (strpos($item, 'keplech') !== false) {
+                $result = array_merge($result, CommonFunctions::kepLech());
+            } elseif (strpos($item, 'cham') !== false) {
+                $result = array_merge($result, CommonFunctions::chamX($item));
+            } elseif (strlen($item) == 3 && is_numeric($item)){
+                $result = array_merge($result, [substr($item, 0, 2), substr($item, -2)]);
+            } else {
+                $result = array_merge($result, [$item]);
+            }
+        }
+        return $result;
+    }
+
+    public function combinations($str)
+    {
+        $result = [];
+        $arrs = explode(',', $str);
+        foreach ($arrs as $arr) {
+            $ep = explode('-', $arr);
+            if (count($ep) >= 3) {
+                $com = new Combinations($ep, count($ep) - 1);
+                $result = array_merge($result, $com->toArray());
+            }
+            $result[] = $ep;
+        }
+        return $result;
     }
 }
