@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
 use drupol\phpermutations\Generators\Combinations;
+use App\Helpers\Legend\CommonFunctions;
 
 class TicketApiController extends BaseApiController
 {
