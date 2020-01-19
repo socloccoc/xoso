@@ -32,9 +32,12 @@ class PointApiController extends BaseApiController
                 return $this->sendError('User không tồn tại !', Response::HTTP_NOT_FOUND);
             }
             // lấy ra danh sách customer theo user
-            $listCustomerByUser = Customer::where('user_id', $user['id'])->pluck('id')->toArray();
-            if (empty($listCustomerByUser)) {
-                return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+            $listCustomerByUser = [];
+            if($user['type'] == 1){
+                $listCustomerByUser = Customer::where('user_id', $user['id'])->pluck('id')->toArray();
+                if (empty($listCustomerByUser)) {
+                    return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+                }
             }
 
             $daily = Daily::where('date', $request['date'])->first();
@@ -52,7 +55,7 @@ class PointApiController extends BaseApiController
             if (empty($listCustomerDaily)) {
                 return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
             }
-            
+
             $points = Point::whereIn('customer_daily_id', $listCustomerDaily)->where('type', $request['type'])->get();
             return $this->sendResponse($points, Response::HTTP_OK);
 
