@@ -73,4 +73,10 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'uses' => 'TicketHandleApiController@ticketHandle',
     ]);
 
+    // Point
+    Route::post('listPoint', [
+        'as' => 'listPoint',
+        'uses' => 'PointApiController@listPoint',
+    ]);
+
 });

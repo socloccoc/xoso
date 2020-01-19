@@ -16,6 +16,7 @@ class CreatePointsTable extends Migration
         Schema::create('points', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('customer_daily_id');
+            $table->integer('type');
             $table->string('num');
             $table->float('diem_tien', 18, 2);
             $table->timestamps();

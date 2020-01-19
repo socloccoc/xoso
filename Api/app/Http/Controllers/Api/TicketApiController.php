@@ -109,9 +109,9 @@ class TicketApiController extends BaseApiController
                     if ($ticket['type'] == 3) {
                         $arr = implode('-', $arr);
                     }
-                    $point = Point::where('customer_daily_id', $ticket['customer_daily_id'])->where('num', $arr)->first();
+                    $point = Point::where('customer_daily_id', $ticket['customer_daily_id'])->where('num', $arr)->where('type', $ticket['type'])->first();
                     if (empty($point)) {
-                        Point::create(['customer_daily_id' => $ticket['customer_daily_id'], 'num' => $arr, 'diem_tien' => $diemTien]);
+                        Point::create(['customer_daily_id' => $ticket['customer_daily_id'], 'num' => $arr, 'diem_tien' => $diemTien, 'type' => $ticket['type']]);
                     } else {
                         $diemTienNew = $point['diem_tien'] + $diemTien;
                         $point->update(['diem_tien' => $diemTienNew]);
