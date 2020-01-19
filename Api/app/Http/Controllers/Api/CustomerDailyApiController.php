@@ -86,7 +86,7 @@ class CustomerDailyApiController extends BaseApiController
             }
 
             // danh sách customer_daily theo customer
-            $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->get();
+            $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->where('daily_id', $daily['id'])->get();
             return $this->sendResponse($listCustomerDaily, Response::HTTP_OK);
 
         } catch (\Exception $ex) {
