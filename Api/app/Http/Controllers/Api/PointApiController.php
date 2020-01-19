@@ -43,17 +43,17 @@ class PointApiController extends BaseApiController
             }
 
             // danh sách customer_daily theo customer
-            $listCustomerDaily = CustomerDaily::whereIn('customer_id', $listCustomerByUser)->where('daily_id', $daily['id'])->pluck('id')->toArray();
+            $listCustomerDaily = CustomerDaily::where(function ($q) use ($user, $listCustomerByUser){
+                if ($user['type'] == 1) {
+                    $q->whereIn('customer_id', $listCustomerByUser);
+                }
+            })->where('daily_id', $daily['id'])->pluck('id')->toArray();
+
             if (empty($listCustomerDaily)) {
                 return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
             }
-
-            $points = Point::where(function ($q) use ($user, $listCustomerDaily) {
-                if ($user['type'] == 1) {
-                    $q->whereIn('customer_daily_id', $listCustomerDaily);
-                }
-            })->where('type', $request['type'])->get();
-
+            
+            $points = Point::whereIn('customer_daily_id', $listCustomerDaily)->where('type', $request['type'])->get();
             return $this->sendResponse($points, Response::HTTP_OK);
 
         } catch (\Exception $ex) {
