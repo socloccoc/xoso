@@ -211,9 +211,15 @@ class TicketHandleApiController extends BaseApiController
         $arrs = explode(',', $str);
         foreach ($arrs as $arr) {
             $ep = explode('-', $arr);
-            if (count($ep) >= 3) {
+            if (count($ep) == 3) {
                 $com = new Combinations($ep, count($ep) - 1);
                 $result = array_merge($result, $com->toArray());
+            }
+            if (count($ep) == 4) {
+                $com = new Combinations($ep, count($ep) - 1);
+                $result = array_merge($result, $com->toArray());
+                $com2 = new Combinations($ep, count($ep) - 2);
+                $result = array_merge($result, $com2->toArray());
             }
             $result[] = $ep;
         }
