@@ -464,7 +464,7 @@ class TicketApiController extends BaseApiController
         $arrs = explode(',', $str);
         foreach ($arrs as $arr) {
             $ep = explode('-', $arr);
-            if (count($ep) >= 3) {
+            if (count($ep) == 3) {
                 $com = new Combinations($ep, count($ep) - 1);
                 $result = array_merge($result, $com->toArray());
             }
