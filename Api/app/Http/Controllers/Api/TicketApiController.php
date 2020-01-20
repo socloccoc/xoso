@@ -42,14 +42,14 @@ class TicketApiController extends BaseApiController
 
         // lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc
         $curentTime = Carbon::now()->format('H:i');
-        if ($curentTime > '18:14' && $curentTime < '18:41') {
+        if ($curentTime > '18:14' && $curentTime < '19:10') {
             if ($this->checkLoXien($request['type'])) {
                 return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
             }
         }
 
         // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
-        if ($curentTime > '18:26' && $curentTime < '18:41') {
+        if ($curentTime > '18:26' && $curentTime < '19:10') {
             if ($this->checkDeVaBacang($request['type'])) {
                 return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
             }
@@ -158,14 +158,14 @@ class TicketApiController extends BaseApiController
 
             // lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc
             $curentTime = Carbon::now()->format('H:i');
-            if ($curentTime > '18:14' && $curentTime < '18:41') {
+            if ($curentTime > '18:14' && $curentTime < '19:10') {
                 if ($this->checkLoXien($request['type'])) {
                     return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
                 }
             }
 
             // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
-            if ($curentTime > '18:26' && $curentTime < '18:41') {
+            if ($curentTime > '18:26' && $curentTime < '19:10') {
                 if ($this->checkDeVaBacang($request['type'])) {
                     return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
                 }

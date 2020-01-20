@@ -247,6 +247,8 @@ class TicketHandleApiController extends BaseApiController
                 $result = array_merge($result, CommonFunctions::kepLech());
             } elseif (strpos($item, 'cham') !== false) {
                 $result = array_merge($result, CommonFunctions::chamX($item));
+            } elseif (strlen($item) == 3 && is_numeric($item)){
+                $result = array_merge($result, [substr($item, 0, 2), substr($item, -2)]);
             } else {
                 $result = array_merge($result, [$item]);
             }
