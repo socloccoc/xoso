@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
 
@@ -61,6 +62,53 @@ class CustomerApiController extends BaseApiController
         }
     }
 
+    /**
+     * update
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        DB::beginTransaction();
+        $customer = Customer::where('id', $id)->first();
+        if (empty($customer)) {
+            return $this->sendError('Customer not found !', Response::HTTP_NOT_FOUND);
+        }
+        $validator = Validator::make($request->all(), [
+            'name'        => 'required|max:255',
+            'lo_rate'     => 'required|numeric',
+            'de_rate'     => 'required|numeric',
+            'de_percent'  => 'required|numeric',
+            'xien_rate'   => 'required|numeric',
+            'bacang_rate' => 'required|numeric'
+        ], []);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $data = [
+                'name'        => $request['name'],
+                'lo_rate'     => floatval($request['lo_rate']),
+                'de_rate'     => floatval($request['de_rate']),
+                'de_percent'  => floatval($request['de_percent']),
+                'xien_rate'   => floatval($request['xien_rate']),
+                'bacang_rate' => floatval($request['bacang_rate']),
+            ];
+
+            $customer = Customer::where('id', $id)->limit(1)->update($data);
+            if ($customer) {
+                DB::commit();
+                return $this->sendResponse($customer, Response::HTTP_OK);
+            }
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
     public function getCustomerByUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -81,6 +129,19 @@ class CustomerApiController extends BaseApiController
             if ($customers) {
                 return $this->sendResponse($customers, Response::HTTP_OK);
             }
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function getCustomerById($id)
+    {
+        try {
+            $customer = Customer::where('id', $id)->first();
+            if ($customer) {
+                return $this->sendResponse($customer, Response::HTTP_OK);
+            }
+            return $this->sendError('Customer not found !', Response::HTTP_NOT_FOUND);
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }

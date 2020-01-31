@@ -35,6 +35,10 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'as' => 'customer.by.user',
         'uses' => 'CustomerApiController@getCustomerByUser',
     ]);
+    Route::get('getCustomerById/{id}', [
+        'as' => 'customer.by.id',
+        'uses' => 'CustomerApiController@getCustomerById',
+    ]);
 
     // daily
     Route::resource('daily', 'DailyApiController');
