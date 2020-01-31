@@ -74,7 +74,7 @@ class TicketApiController extends BaseApiController
             $ticket = Ticket::create($data);
             if ($ticket) {
                 $this->updateMoneyIn($request['customer_daily_id'], $request['fee']);
-                $this->updatePoint($ticket, $ticket['diem_tien']);
+                $this->updatePoint($ticket, $ticket['diem_tien'], false);
                 DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
@@ -84,7 +84,7 @@ class TicketApiController extends BaseApiController
         }
     }
 
-    public function updatePoint($ticket, $diemTien)
+    public function updatePoint($ticket, $diemTien, $sub = false)
     {
         try {
             $arrs = [];
@@ -114,7 +114,11 @@ class TicketApiController extends BaseApiController
                     if (empty($point)) {
                         Point::create(['customer_daily_id' => $ticket['customer_daily_id'], 'num' => $arr, 'diem_tien' => $diemTien, 'type' => $ticket['type']]);
                     } else {
-                        $diemTienNew = $point['diem_tien'] + $diemTien;
+                        if ($sub) {
+                            $diemTienNew = $point['diem_tien'] - $diemTien;
+                        } else {
+                            $diemTienNew = $point['diem_tien'] + $diemTien;
+                        }
                         $point->update(['diem_tien' => $diemTienNew]);
                     }
                 }
@@ -182,8 +186,12 @@ class TicketApiController extends BaseApiController
 
             $this->updateMoneyIn($ticket['customer_daily_id'], $request['fee'] - $ticket['fee']);
 
+            $this->updatePoint($ticket, $ticket['diem_tien'], true);
+
             $ticket = Ticket::where('id', $id)->limit(1)->update($data);
             if ($ticket) {
+                $ticket = Ticket::where('id', $id)->where('status', 0)->first();
+                $this->updatePoint($ticket, $ticket['diem_tien'], false);
                 DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
@@ -212,7 +220,7 @@ class TicketApiController extends BaseApiController
             $curentDate = Carbon::now()->format('Y-m-d');
             $curentTime = Carbon::now()->format('H:i');
 
-            if($curentDate == $daily['date']){
+            if ($curentDate == $daily['date']) {
                 if ($curentTime > '18:14') {
                     if ($this->checkLoXien($ticket['type'])) {
                         return $this->sendError('Lô và Xiên chỉ được xóa trước 18h14 cùng ngày !', Response::HTTP_BAD_REQUEST);
@@ -225,7 +233,7 @@ class TicketApiController extends BaseApiController
                     }
                 }
             }
-
+            $this->updatePoint($ticket, $ticket['diem_tien'], true);
             $ticketRemove = Ticket::where('id', $id)->delete();
             if ($ticketRemove) {
                 $this->updateMoneyIn($ticket['customer_daily_id'], -$ticket['fee']);
@@ -309,8 +317,8 @@ class TicketApiController extends BaseApiController
             }
 
             // lấy ra danh sách customer theo user
-            $listCustomerByUser = Customer::where(function ($q) use ($user){
-                if($user['type'] == 1){
+            $listCustomerByUser = Customer::where(function ($q) use ($user) {
+                if ($user['type'] == 1) {
                     $q->where('user_id', $user['id']);
                 }
             })->pluck('id')->toArray();
@@ -332,8 +340,6 @@ class TicketApiController extends BaseApiController
         }
 
     }
-
-
 
     public function summaryOfResults(Request $request)
     {
@@ -449,7 +455,7 @@ class TicketApiController extends BaseApiController
                 $result = array_merge($result, CommonFunctions::kepLech());
             } elseif (strpos($item, 'cham') !== false) {
                 $result = array_merge($result, CommonFunctions::chamX($item));
-            } elseif (strlen($item) == 3 && is_numeric($item)){
+            } elseif (strlen($item) == 3 && is_numeric($item)) {
                 $result = array_merge($result, [substr($item, 0, 2), substr($item, -2)]);
             } else {
                 $result = array_merge($result, [$item]);
