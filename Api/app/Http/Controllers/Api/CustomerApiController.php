@@ -134,14 +134,18 @@ class CustomerApiController extends BaseApiController
         }
     }
 
-    public function getCustomerById($id)
+    public function getCustomerByCustomerDaily(Request $request)
     {
         try {
-            $customer = Customer::where('id', $id)->first();
-            if ($customer) {
+            $customerDaily = CustomerDaily::where('id', $request->customer_daily_id)->first();
+            if (empty($customerDaily)) {
+                return $this->sendError('CustomerDaily không tồn tại!', Response::HTTP_BAD_REQUEST);
+            }
+            $customer = Customer::where('id', $customerDaily->customer_id)->first();
+            if ($customerDaily) {
                 return $this->sendResponse($customer, Response::HTTP_OK);
             }
-            return $this->sendError('Customer not found !', Response::HTTP_NOT_FOUND);
+            return $this->sendError('Customer không tồn tại !', Response::HTTP_NOT_FOUND);
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
