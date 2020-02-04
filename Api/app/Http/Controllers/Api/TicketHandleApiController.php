@@ -22,13 +22,12 @@ class TicketHandleApiController extends BaseApiController
         if (empty($daily)) {
             return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
         }
-        $result = str_replace(['-', 'ĐB:', '1:', '2:', '3:', '4:', '5:', '6:', '7:'], 'a', $daily['result']);
-        $result = explode('a', $result);
+        $result = explode('|', $daily['result']);
         $data = [];
         $baCang = 000;
         if (!empty($result)) {
             foreach ($result as $ind => $item) {
-                if ($ind == 1) {
+                if ($ind == 0) {
                     $baCang = substr(trim($item), -3);
                 }
                 if ($item !== "") {

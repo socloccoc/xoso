@@ -46,23 +46,44 @@ class ScheduleCalculations extends Command
      */
     public function handle()
     {
-        $url = "https://xskt.com.vn/rss-feed/mien-bac-xsmb.rss";
+//        $url = "https://xskt.com.vn/rss-feed/mien-bac-xsmb.rss";
+        $url = "https://www.xosominhngoc.com/ket-qua-xo-so/mien-bac/ha-noi.html";
         $crawler = new Crawler(CommonFunctions::retrieveData($url, false));
         try {
-            $result = "";
-            $crawler->filterXPath('//channel/item')->each(function ($node, $index) use (&$result) {
-                if ($index == 0) {
-                    $result = $node->filter('description')->text();
+            $result = [];
+            $crawler->filterXPath('//table[@class="bkqtinhmienbac"]/tbody/tr/td/table/tbody')->each(function ($node, $index) use (&$result) {
+                if($index == 0) {
+                    preg_match_all('!\d+!', $node->text(), $matches);
+                    foreach ($matches[0] as $ind => $match) {
+                        if ($ind == 2 || $ind == 3) {
+                            $splitLength = 5;
+                        }
+                        if ($ind == 4 || $ind == 5) {
+                            $splitLength = 4;
+                        }
+                        if ($ind == 6) {
+                            $splitLength = 3;
+                        }
+                        if ($ind == 7) {
+                            $splitLength = 2;
+                        }
+                        if ($ind < 2) {
+                            $result[] = $match;
+                        } else {
+                            $parts = str_split($match, $splitLength);
+                            foreach ($parts as $part) {
+                                $result[] = $part;
+                            }
+                        }
+                    }
                 }
             });
-            $this->updateResultDaily($result);
-            $result = str_replace(['-', 'ĐB:', '1:', '2:', '3:', '4:', '5:', '6:', '7:'], 'a', $result);
-            $result = explode('a', $result);
+            $this->updateResultDaily(implode('|', $result));
             $data = [];
             $baCang = 000;
             if (!empty($result)) {
                 foreach ($result as $ind => $item) {
-                    if ($ind == 1) {
+                    if ($ind == 0) {
                         $baCang = substr(trim($item), -3);
                     }
                     if ($item !== "") {
