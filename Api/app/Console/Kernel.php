@@ -25,9 +25,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('calculate:start')
-            ->dailyAt('19:05')->appendOutputTo(storage_path('logs/calculate.log'));
+            ->dailyAt('18:35')->appendOutputTo(storage_path('logs/calculate.log'));
         $schedule->command('daily:start')
-            ->dailyAt('19:15')->appendOutputTo(storage_path('logs/daily.log'));
+            ->dailyAt('18:40')->appendOutputTo(storage_path('logs/daily.log'));
     }
 
     /**
