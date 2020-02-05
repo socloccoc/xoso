@@ -46,12 +46,13 @@ class ScheduleCalculations extends Command
      */
     public function handle()
     {
-//        $url = "https://xskt.com.vn/rss-feed/mien-bac-xsmb.rss";
-        $url = "https://www.xosominhngoc.com/ket-qua-xo-so/mien-bac/ha-noi.html";
+//        $url = "https://www.xosominhngoc.com/ket-qua-xo-so/mien-bac/ha-noi.html";
+        $url = "http://ketqua.net/xo-so-mien-bac";
         $crawler = new Crawler(CommonFunctions::retrieveData($url, false));
         try {
             $result = [];
-            $crawler->filterXPath('//table[@class="bkqtinhmienbac"]/tbody/tr/td/table/tbody')->each(function ($node, $index) use (&$result) {
+//            $crawler->filterXPath('//table[@class="bkqtinhmienbac"]/tbody/tr/td/table/tbody')->each(function ($node, $index) use (&$result) {
+            $crawler->filterXPath('//table[@id="result_tab_mb"]/tbody')->each(function ($node, $index) use (&$result) {
                 if($index == 0) {
                     preg_match_all('!\d+!', $node->text(), $matches);
                     foreach ($matches[0] as $ind => $match) {
