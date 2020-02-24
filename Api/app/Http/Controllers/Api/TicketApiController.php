@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\Legend\CommonFunctions;
 use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
@@ -9,23 +10,20 @@ use App\Models\Point;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use drupol\phpermutations\Generators\Combinations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
-use drupol\phpermutations\Generators\Combinations;
-use App\Helpers\Legend\CommonFunctions;
 
-class TicketApiController extends BaseApiController
-{
+class TicketApiController extends BaseApiController {
     /**
      * Lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc, đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
      * Và update lại money in của customer_daily_id
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $validator = Validator::make($request->all(), [
             'customer_daily_id' => 'required',
             'chuoi_so'          => 'required|max:255',
@@ -84,8 +82,7 @@ class TicketApiController extends BaseApiController
         }
     }
 
-    public function updatePoint($ticket, $diemTien, $sub = false)
-    {
+    public function updatePoint($ticket, $diemTien, $sub = false) {
         try {
             $arrs = [];
 
@@ -131,7 +128,6 @@ class TicketApiController extends BaseApiController
 
     }
 
-
     /**
      * Lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc, đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
      * update lại money in của customer_daily_id
@@ -139,8 +135,7 @@ class TicketApiController extends BaseApiController
      * @param $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         try {
             DB::beginTransaction();
             $ticket = Ticket::where('id', $id)->where('status', 0)->first();
@@ -162,14 +157,14 @@ class TicketApiController extends BaseApiController
 
             // lô và xiên(type: 0,2,3,4,5,6) từ 18h14 đến 18h41 sẽ không tạo đc
             $curentTime = Carbon::now()->format('H:i');
-            if ($curentTime > '18:14' && $curentTime < '19:15') {
+            if ($curentTime > '18:20' && $curentTime < '19:15') {
                 if ($this->checkLoXien($request['type'])) {
                     return $this->sendError('Lô và Xiên từ 18h14 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
                 }
             }
 
             // đề và ba càng (type: 1, 7)  từ 18h26 đến 18h41 sẽ ko tạo được
-            if ($curentTime > '18:26' && $curentTime < '19:15') {
+            if ($curentTime > '18:30' && $curentTime < '19:15') {
                 if ($this->checkDeVaBacang($request['type'])) {
                     return $this->sendError('Đề và Ba Càng từ 18h26 đến 18h41 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
                 }
@@ -207,8 +202,7 @@ class TicketApiController extends BaseApiController
      * @param $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         try {
             DB::beginTransaction();
             $ticket = Ticket::where('id', $id)->where('status', 0)->first();
@@ -251,8 +245,7 @@ class TicketApiController extends BaseApiController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function getTickets(Request $request)
-    {
+    public function getTickets(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_key'          => 'required|size:6',
             'customer_daily_id' => 'required|integer',
@@ -293,8 +286,7 @@ class TicketApiController extends BaseApiController
 
     }
 
-    public function getTicketByParam(Request $request)
-    {
+    public function getTicketByParam(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_key' => 'required|size:6',
             'type'     => 'integer',
@@ -341,8 +333,7 @@ class TicketApiController extends BaseApiController
 
     }
 
-    public function summaryOfResults(Request $request)
-    {
+    public function summaryOfResults(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_key'   => 'required|size:6',
             'daily_date' => 'required',
@@ -390,9 +381,9 @@ class TicketApiController extends BaseApiController
             }
             $data = [];
             foreach ($tickets as $ticket) {
-                $ticket['date'] = $request['daily_date'];
+                $ticket['date']      = $request['daily_date'];
                 $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
-                $data[] = $ticket;
+                $data[]              = $ticket;
             }
             DB::commit();
             return $this->sendResponse($data, Response::HTTP_OK);
@@ -402,15 +393,13 @@ class TicketApiController extends BaseApiController
         }
     }
 
-    public function updateMoneyIn($customerDailyId, $money)
-    {
+    public function updateMoneyIn($customerDailyId, $money) {
         $customerDaily = CustomerDaily::where('id', $customerDailyId)->first();
-        $moneyIn = $customerDaily['money_in'] + $money;
+        $moneyIn       = $customerDaily['money_in'] + $money;
         $customerDaily->update(['money_in' => $moneyIn]);
     }
 
-    public function checkLoXien($type)
-    {
+    public function checkLoXien($type) {
         $types = [0, 2, 3];
         if (in_array($type, $types)) {
             return true;
@@ -418,8 +407,7 @@ class TicketApiController extends BaseApiController
         return false;
     }
 
-    public function checkDeVaBacang($type)
-    {
+    public function checkDeVaBacang($type) {
         $types = [1, 4];
         if (in_array($type, $types)) {
             return true;
@@ -427,16 +415,14 @@ class TicketApiController extends BaseApiController
         return false;
     }
 
-    public function getDailyByCustomerDaily($customerDailyId)
-    {
+    public function getDailyByCustomerDaily($customerDailyId) {
         $customerDaily = CustomerDaily::where('id', $customerDailyId)->first();
-        $daily = Daily::where('id', $customerDaily['id'])->first();
+        $daily         = Daily::where('id', $customerDaily['id'])->first();
         return $daily;
     }
 
-    public function breakStringNumber($str)
-    {
-        $str = explode(',', $str);
+    public function breakStringNumber($str) {
+        $str    = explode(',', $str);
         $result = [];
         foreach ($str as $item) {
             $item = strtolower($item);
@@ -464,20 +450,19 @@ class TicketApiController extends BaseApiController
         return $result;
     }
 
-    public function combinations($str)
-    {
+    public function combinations($str) {
         $result = [];
-        $arrs = explode(',', $str);
+        $arrs   = explode(',', $str);
         foreach ($arrs as $arr) {
             $ep = explode('-', $arr);
             if (count($ep) == 3) {
-                $com = new Combinations($ep, count($ep) - 1);
+                $com    = new Combinations($ep, count($ep) - 1);
                 $result = array_merge($result, $com->toArray());
             }
             if (count($ep) == 4) {
-                $com = new Combinations($ep, count($ep) - 1);
+                $com    = new Combinations($ep, count($ep) - 1);
                 $result = array_merge($result, $com->toArray());
-                $com2 = new Combinations($ep, count($ep) - 2);
+                $com2   = new Combinations($ep, count($ep) - 2);
                 $result = array_merge($result, $com2->toArray());
             }
             $result[] = $ep;
