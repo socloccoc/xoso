@@ -5,8 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
-class Kernel extends ConsoleKernel
-{
+class Kernel extends ConsoleKernel {
     /**
      * The Artisan commands provided by your application.
      *
@@ -22,12 +21,17 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
-    {
+    protected function schedule(Schedule $schedule) {
         $schedule->command('calculate:start')
             ->dailyAt('18:35')->appendOutputTo(storage_path('logs/calculate.log'));
         $schedule->command('daily:start')
             ->dailyAt('18:40')->appendOutputTo(storage_path('logs/daily.log'));
+        $schedule->command('checkLo:start')
+            ->dailyAt('18:10')->appendOutputTo(storage_path('logs/checkLo.log'));
+        $schedule->command('checkDe:start')
+            ->dailyAt('18:18')->appendOutputTo(storage_path('logs/checkDe.log'));
+        $schedule->command('checkResult:start')
+            ->dailyAt('18:36')->appendOutputTo(storage_path('logs/checkResult.log'));
     }
 
     /**
@@ -35,8 +39,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function commands()
-    {
+    protected function commands() {
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
