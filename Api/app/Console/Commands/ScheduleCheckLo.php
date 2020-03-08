@@ -4,9 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\CustomerDaily;
 use App\Models\Daily;
-use App\Models\Ticket;
+use App\Models\Point;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Symfony\Component\HttpFoundation\Response;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class ScheduleCheckLo extends Command {
@@ -39,27 +40,44 @@ class ScheduleCheckLo extends Command {
      * @return mixed
      */
     public function handle() {
-        $currentDate = Carbon::now()->format('d-m-Y');
+
+        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
-            $this->info('Daily không tồn tại !');
-            return;
+            return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
         }
-        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
-        $tickets         = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
-        if (empty($tickets)) {
-            $this->info('Không tìm thấy ticket nào !');
+
+        // danh sách customer_daily theo customer
+        $listCustomerDaily = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+
+        if (empty($listCustomerDaily)) {
+            return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
         }
+
+        $los = Point::whereIn('customer_daily_id', $listCustomerDaily)
+            ->where('type', 0)
+            ->selectRaw('points.*, sum(diem_tien) as sum')
+            ->groupBy('points.num')
+            ->get();
+        $xiens = Point::whereIn('customer_daily_id', $listCustomerDaily)
+            ->whereIn('type', [2, 3])
+            ->selectRaw('points.*, sum(diem_tien) as sum')
+            ->groupBy('points.num')
+            ->get();
         $loMsg   = '<b>Lô : </b>';
         $xienMsg = '<b>Xiên : </b>';
-        foreach ($tickets as $ticket) {
-            if ($ticket['type'] == 0 && $ticket['diem_tien'] >= 250) {
-                $loMsg .= $ticket['chuoi_so'] . ': ' . $ticket['diem_tien'] . 'đ <b>|</b> ';
-            }
-            if (($ticket['type'] == 2 || $ticket['type'] == 3) && $ticket['diem_tien'] >= 300000) {
-                $xienMsg .= $ticket['chuoi_so'] . ': ' . $ticket['diem_tien'] / 1000 . 'n <b>|</b> ';
+        foreach ($los as $point) {
+            if ($point['sum'] >= 250) {
+                $loMsg .= $point['num'] . ': ' . number_format($point['sum']) . 'đ <b>|</b> ';
             }
         }
+
+        foreach ($xiens as $point) {
+            if ($point['sum'] >= 300000) {
+                $xienMsg .= $point['num'] . ': ' . number_format($point['sum'] / 1000) . 'n <b>|</b> ';
+            }
+        }
+
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
         . $loMsg . "\n"
         . $xienMsg;

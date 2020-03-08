@@ -4,9 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\CustomerDaily;
 use App\Models\Daily;
-use App\Models\Ticket;
+use App\Models\Point;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Symfony\Component\HttpFoundation\Response;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class ScheduleCheckDe extends Command {
@@ -39,27 +40,43 @@ class ScheduleCheckDe extends Command {
      * @return mixed
      */
     public function handle() {
-        $currentDate = Carbon::now()->format('d-m-Y');
+        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
-            $this->info('Daily không tồn tại !');
-            return;
+            return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
         }
-        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
-        $tickets         = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
-        if (empty($tickets)) {
-            $this->info('Không tìm thấy ticket nào !');
+
+        // danh sách customer_daily theo customer
+        $listCustomerDaily = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+
+        if (empty($listCustomerDaily)) {
+            return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
         }
+
+        $des = Point::whereIn('customer_daily_id', $listCustomerDaily)
+            ->where('type', 1)
+            ->selectRaw('points.*, sum(diem_tien) as sum')
+            ->groupBy('points.num')
+            ->get();
+        $bacangs = Point::whereIn('customer_daily_id', $listCustomerDaily)
+            ->where('type', 4)
+            ->selectRaw('points.*, sum(diem_tien) as sum')
+            ->groupBy('points.num')
+            ->get();
         $deMsg     = '<b>Đề : </b>';
         $bacangMsg = '<b>Ba Càng : </b>';
-        foreach ($tickets as $ticket) {
-            if ($ticket['type'] == 1 && $ticket['diem_tien'] >= 200000) {
-                $deMsg .= $ticket['chuoi_so'] . ': ' . $ticket['diem_tien'] / 1000 . 'n <b>|</b> ';
-            }
-            if ($ticket['type'] == 4 && $ticket['diem_tien'] >= 100000) {
-                $bacangMsg .= $ticket['chuoi_so'] . ': ' . $ticket['diem_tien'] / 1000 . 'n <b>|</b> ';
+        foreach ($des as $point) {
+            if ($point['sum'] >= 200000) {
+                $deMsg .= $point['num'] . ': ' . $point['sum'] / 1000 . 'n <b>|</b> ';
             }
         }
+
+        foreach ($bacangs as $point) {
+            if ($point['sum'] >= 100000) {
+                $bacangMsg .= $point['num'] . ': ' . $point['sum'] / 1000 . 'n <b>|</b> ';
+            }
+        }
+
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
         . $deMsg . "\n"
         . $bacangMsg;
