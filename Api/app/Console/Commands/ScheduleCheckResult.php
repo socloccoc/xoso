@@ -62,11 +62,11 @@ class ScheduleCheckResult extends Command {
                 $totalMoneyoutOfUser += $totalMoneyoutOfCustomer;
                 $all += $totalMoneyoutOfCustomer;
             }
-            $userResult .= number_format($totalMoneyoutOfUser) . "\n";
+            $userResult .= number_format(-$totalMoneyoutOfUser) . "\n";
         }
 
         $text = "<b>Thông tin lợi nhuận ngày " . $currentDate . "</b>\n"
-        . 'Tổng: ' . number_format($all) . "\n"
+        . 'Tổng: ' . number_format(-$all) . "\n"
         . $userResult;
 
         Telegram::sendMessage([

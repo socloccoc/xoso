@@ -7,7 +7,6 @@ use App\Models\Daily;
 use App\Models\Point;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Symfony\Component\HttpFoundation\Response;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class ScheduleCheckLo extends Command {
@@ -44,42 +43,46 @@ class ScheduleCheckLo extends Command {
         $currentDate = Carbon::now()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
-            return $this->sendError('Daily không tồn tại !', Response::HTTP_NOT_FOUND);
+            $this->info('Daily không tồn tại !');
+            return false;
         }
 
         // danh sách customer_daily theo customer
         $listCustomerDaily = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
 
         if (empty($listCustomerDaily)) {
-            return $this->sendError('Customer_daily không tồn tại !', Response::HTTP_NOT_FOUND);
+            $this->info('Customer_daily không tồn tại !');
+            return false;
         }
 
         $los = Point::whereIn('customer_daily_id', $listCustomerDaily)
             ->where('type', 0)
             ->selectRaw('points.*, sum(diem_tien) as sum')
             ->groupBy('points.num')
+            ->orderBy('sum', 'desc')
             ->get();
         $xiens = Point::whereIn('customer_daily_id', $listCustomerDaily)
             ->whereIn('type', [2, 3])
             ->selectRaw('points.*, sum(diem_tien) as sum')
             ->groupBy('points.num')
+            ->orderBy('sum', 'desc')
             ->get();
-        $loMsg   = '<b>Lô : </b>';
-        $xienMsg = '<b>Xiên : </b>';
+        $loMsg   = "<b>Lo.</b> \n";
+        $xienMsg = "<b>Xien.</b> \n";
         foreach ($los as $point) {
             if ($point['sum'] >= 250) {
-                $loMsg .= $point['num'] . ': ' . number_format($point['sum']) . 'đ <b>|</b> ';
+                $loMsg .= $point['num'] . 'x' . $point['sum'] . 'đ.' . "\n";
             }
         }
 
         foreach ($xiens as $point) {
             if ($point['sum'] >= 300000) {
-                $xienMsg .= $point['num'] . ': ' . number_format($point['sum'] / 1000) . 'n <b>|</b> ';
+                $xienMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
             }
         }
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
-        . $loMsg . "\n"
+        . $loMsg
         . $xienMsg;
 
         Telegram::sendMessage([
