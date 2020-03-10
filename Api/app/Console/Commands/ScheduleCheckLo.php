@@ -67,17 +67,21 @@ class ScheduleCheckLo extends Command {
             ->groupBy('points.num')
             ->orderBy('sum', 'desc')
             ->get();
-        $loMsg   = "<b>Lo.</b> \n";
-        $xienMsg = "<b>Xien.</b> \n";
+        $loMsg        = "<b>Lo.</b> \n";
+        $xienMsg      = "<b>Xien.</b> \n";
+        $loRecomMsg   = "<b>Lo.</b> \n";
+        $xienRecomMsg = "<b>Xien.</b> \n";
         foreach ($los as $point) {
             if ($point['sum'] >= 250) {
                 $loMsg .= $point['num'] . 'x' . $point['sum'] . 'đ.' . "\n";
+                $loRecomMsg .= $point['num'] . 'x' . 250 . 'đ.' . "\n";
             }
         }
 
         foreach ($xiens as $point) {
             if ($point['sum'] >= 300000) {
                 $xienMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
+                $xienRecomMsg .= $point['num'] . 'x' . 300 . 'n.' . "\n";
             }
         }
 
@@ -85,10 +89,20 @@ class ScheduleCheckLo extends Command {
         . $loMsg
         . $xienMsg;
 
+        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
+        . $loRecomMsg
+        . $xienRecomMsg;
+
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
             'parse_mode' => 'HTML',
             'text'       => $text,
         ]);
+        Telegram::sendMessage([
+            'chat_id'    => config('constants.CHANNEL_ID'),
+            'parse_mode' => 'HTML',
+            'text'       => $textRecom,
+        ]);
+
     }
 }

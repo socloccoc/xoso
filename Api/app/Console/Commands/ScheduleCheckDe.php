@@ -66,17 +66,25 @@ class ScheduleCheckDe extends Command {
             ->groupBy('points.num')
             ->orderBy('sum', 'desc')
             ->get();
-        $deMsg     = "<b>De. </b> \n";
-        $bacangMsg = "<b>Bacang. </b> \n";
+        $deMsg          = "<b>De. </b> \n";
+        $bacangMsg      = "<b>Bacang. </b> \n";
+        $deRecomMsg     = "<b>De. </b> \n";
+        $bacangRecomMsg = "<b>Bacang. </b> \n";
         foreach ($des as $point) {
             if ($point['sum'] >= 200000) {
                 $deMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
+                if ($point['sum'] > 200000) {
+                    $deRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 200000) / 1000 . 'n.' . "\n";
+                }
             }
         }
 
         foreach ($bacangs as $point) {
             if ($point['sum'] >= 100000) {
                 $bacangMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
+                if ($point['sum'] > 100000) {
+                    $bacangRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 100000) / 1000 . 'n.' . "\n";
+                }
             }
         }
 
@@ -84,10 +92,20 @@ class ScheduleCheckDe extends Command {
         . $deMsg
         . $bacangMsg;
 
+        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
+        . $deRecomMsg
+        . $bacangRecomMsg;
+
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
             'parse_mode' => 'HTML',
             'text'       => $text,
+        ]);
+
+        Telegram::sendMessage([
+            'chat_id'    => config('constants.CHANNEL_ID'),
+            'parse_mode' => 'HTML',
+            'text'       => $textRecom,
         ]);
     }
 }
