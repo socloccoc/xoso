@@ -80,10 +80,10 @@ class ScheduleCheckDe extends Command {
         }
 
         foreach ($bacangs as $point) {
-            if ($point['sum'] >= 100000) {
+            if ($point['sum'] >= 20000) {
                 $bacangMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
-                if ($point['sum'] > 100000) {
-                    $bacangRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 100000) / 1000 . 'n.' . "\n";
+                if ($point['sum'] > 20000) {
+                    $bacangRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 20000) / 1000 . 'n.' . "\n";
                 }
             }
         }
