@@ -74,24 +74,28 @@ class ScheduleCheckLo extends Command {
         foreach ($los as $point) {
             if ($point['sum'] >= 250) {
                 $loMsg .= $point['num'] . 'x' . $point['sum'] . 'đ.' . "\n";
-                $loRecomMsg .= $point['num'] . 'x' . 250 . 'đ.' . "\n";
+                if ($point['sum'] > 250) {
+                    $loRecomMsg .= $point['num'] . 'x' . $point['sum'] - 250 . 'đ.' . "\n";
+                }
             }
         }
 
         foreach ($xiens as $point) {
             if ($point['sum'] >= 300000) {
                 $xienMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
-                $xienRecomMsg .= $point['num'] . 'x' . 300 . 'n.' . "\n";
+                if ($point['sum'] > 300000) {
+                    $xienRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 300000 / 1000) . 'n.' . "\n";
+                }
             }
         }
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
-        . $loMsg
-        . $xienMsg;
+        . (strlen($loMsg) > 15 ? $loMsg : '')
+        . (strlen($xienMsg) > 15 ? $xienMsg : '');
 
         $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
-        . $loRecomMsg
-        . $xienRecomMsg;
+        . (strlen($loRecomMsg) > 15 ? $loRecomMsg : '')
+        . (strlen($xienRecomMsg) > 15 ? $xienRecomMsg : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),

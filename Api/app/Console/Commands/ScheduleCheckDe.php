@@ -89,12 +89,12 @@ class ScheduleCheckDe extends Command {
         }
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
-        . $deMsg
-        . $bacangMsg;
+        . (strlen($deMsg) > 15 ? $deMsg : '')
+        . (strlen($bacangMsg) > 15 ? $bacangMsg : '');
 
         $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
-        . $deRecomMsg
-        . $bacangRecomMsg;
+        . (strlen($deRecomMsg) > 15 ? $deRecomMsg : '')
+        . (strlen($bacangRecomMsg) > 15 ? $bacangRecomMsg : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
