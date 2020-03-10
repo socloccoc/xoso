@@ -84,7 +84,7 @@ class ScheduleCheckLo extends Command {
             if ($point['sum'] >= 300000) {
                 $xienMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
                 if ($point['sum'] > 300000) {
-                    $xienRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 300000 / 1000) . 'n.' . "\n";
+                    $xienRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 300000) / 1000 . 'n.' . "\n";
                 }
             }
         }
