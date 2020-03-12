@@ -144,9 +144,10 @@ class ScheduleCheckLo extends Command {
             foreach ($arrs as $ind => $arr) {
                 if ($ind >= $cross) {
                     $divisor = $islo ? 1 : 1000;
-                    $msg1 .= implode(',', $arr) . 'x' . $ind / $divisor . 'n.' . "\n";
+                    $unit = $islo ? 'đ.' : 'n.';
+                    $msg1 .= implode(',', $arr) . 'x' . $ind / $divisor . $unit . "\n";
                     if ($ind > $cross) {
-                        $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / $divisor . 'n.' . "\n";
+                        $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
                     }
                 }
             }
