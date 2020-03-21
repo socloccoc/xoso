@@ -10,6 +10,7 @@ use App\Models\Ticket;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class ScheduleCheckResult extends Command {
     /**
@@ -110,7 +111,7 @@ class ScheduleCheckResult extends Command {
                 'text'       => $text,
             ]);
         } catch (\Exception $ex) {
-            return $this->sendError($ex->getMessage(), $ex->getCode());
+            $this->info($ex->getMessage());
         }
     }
 
