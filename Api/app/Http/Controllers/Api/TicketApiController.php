@@ -376,14 +376,43 @@ class TicketApiController extends BaseApiController {
             $tickets = Ticket::whereIn('customer_daily_id', $listCustomerDaily)->groupBy('type')
                 ->selectRaw('type, sum(fee) as thuc_thu, sum(sales) as doanh_so, sum(win_num) as so_luong_trung, sum(profit) as tien_trung')
                 ->get();
+
+            $points = Point::whereIn('customer_daily_id', $listCustomerDaily)
+                ->where('type', 0)
+                ->groupBy('type')
+                ->selectRaw('type, sum(diem_tien) as diem_tien')
+                ->get()->toArray();
+
             if (empty($tickets)) {
                 return $this->sendError('Ticket không tồn tại !', Response::HTTP_NOT_FOUND);
             }
             $data = [];
             foreach ($tickets as $ticket) {
-                $ticket['date']      = $request['daily_date'];
-                $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
-                $data[]              = $ticket;
+                if ($user['type'] != 0) {
+                    $ticket['date']      = $request['daily_date'];
+                    $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
+                    $data[]              = $ticket;
+                } else {
+                    $rate = 0;
+                    if ($ticket['type'] == 0) {
+                        $rate = $user['lo_rate'];
+                    } elseif ($ticket['type'] == 1) {
+                        $rate = $user['de_rate'];
+                    } elseif ($ticket['type'] == 2 || $ticket['type'] == 3) {
+                        $rate = $user['xien_rate'];
+                    } else {
+                        $rate = $user['bacang_rate'];
+                    }
+                    $ticket['date'] = $request['daily_date'];
+                    if ($ticket['type'] != 0) {
+                        $ticket['thuc_thu']  = $ticket['doanh_so'] * $rate;
+                        $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
+                    } else {
+                        $ticket['thuc_thu']  = $points[0]['diem_tien'] * $rate;
+                        $ticket['loi_nhuan'] = $ticket['thuc_thu'] - $ticket['tien_trung'];
+                    }
+                    $data[] = $ticket;
+                }
             }
             DB::commit();
             return $this->sendResponse($data, Response::HTTP_OK);
