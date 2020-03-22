@@ -72,32 +72,32 @@ class ScheduleCheckLo extends Command {
         $loRecomMsg   = "<b>Lo.</b> \n";
         $xienRecomMsg = "<b>Xien.</b> \n";
 //        foreach ($los as $point) {
-//            if ($point['sum'] >= 250) {
-//                $loMsg .= $point['num'] . 'x' . $point['sum'] . 'đ.' . "\n";
-//                if ($point['sum'] > 250) {
-//                    $loRecomMsg .= $point['num'] . 'x' . $point['sum'] - 250 . 'đ.' . "\n";
-//                }
-//            }
-//        }
-//
-//        foreach ($xiens as $point) {
-//            if ($point['sum'] >= 300000) {
-//                $xienMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
-//                if ($point['sum'] > 300000) {
-//                    $xienRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 300000) / 1000 . 'n.' . "\n";
-//                }
-//            }
-//        }
-//
-//        $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
-//        . (strlen($loMsg) > 15 ? $loMsg : '')
-//        . (strlen($xienMsg) > 15 ? $xienMsg : '');
-//
-//        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
-//        . (strlen($loRecomMsg) > 15 ? $loRecomMsg : '')
-//        . (strlen($xienRecomMsg) > 15 ? $xienRecomMsg : '');
+        //            if ($point['sum'] >= 250) {
+        //                $loMsg .= $point['num'] . 'x' . $point['sum'] . 'đ.' . "\n";
+        //                if ($point['sum'] > 250) {
+        //                    $loRecomMsg .= $point['num'] . 'x' . $point['sum'] - 250 . 'đ.' . "\n";
+        //                }
+        //            }
+        //        }
+        //
+        //        foreach ($xiens as $point) {
+        //            if ($point['sum'] >= 300000) {
+        //                $xienMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
+        //                if ($point['sum'] > 300000) {
+        //                    $xienRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 300000) / 1000 . 'n.' . "\n";
+        //                }
+        //            }
+        //        }
+        //
+        //        $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
+        //        . (strlen($loMsg) > 15 ? $loMsg : '')
+        //        . (strlen($xienMsg) > 15 ? $xienMsg : '');
+        //
+        //        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
+        //        . (strlen($loRecomMsg) > 15 ? $loRecomMsg : '')
+        //        . (strlen($xienRecomMsg) > 15 ? $xienRecomMsg : '');
 
-        $lo = $this->getMsg($los, 250, $loMsg, $loRecomMsg, true);
+        $lo   = $this->getMsg($los, 250, $loMsg, $loRecomMsg, true);
         $xien = $this->getMsg($xiens, 300000, $xienMsg, $xienRecomMsg);
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
@@ -122,29 +122,28 @@ class ScheduleCheckLo extends Command {
 
     }
 
-    public function getMsg($data, $cross, $msg1, $msg2, $islo = false)
-    {
+    public function getMsg($data, $cross, $msg1, $msg2, $islo = false) {
         $arrs = [];
         if (!empty($data)) {
-            for ($i = 0 ; $i < count($data) ; $i++) {
+            for ($i = 0; $i < count($data); $i++) {
                 $nums[] = $data[$i]['num'];
                 if ($i < count($data) - 1) {
                     if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
                         $arrs[$data[$i]['sum']] = $nums;
-                        $nums = [];
+                        $nums                   = [];
                     }
                 } else {
                     if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
                         $arrs[$data[$i - 1]['sum']][] = $data[$i]['num'];
                     } else {
-                        $arrs[$data[$i]['sum']] = $data[$i]['num'];
+                        $arrs[$data[$i]['sum']][] = $data[$i]['num'];
                     }
                 }
             }
             foreach ($arrs as $ind => $arr) {
                 if ($ind >= $cross) {
                     $divisor = $islo ? 1 : 1000;
-                    $unit = $islo ? 'd.' : 'n.';
+                    $unit    = $islo ? 'd.' : 'n.';
                     $msg1 .= implode(',', $arr) . 'x' . $ind / $divisor . $unit . "\n";
                     if ($ind > $cross) {
                         $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
