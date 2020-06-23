@@ -100,8 +100,8 @@ class ScheduleCheckDe extends Command {
         //            . (strlen($deRecomMsg) > 15 ? $deRecomMsg : '')
         //            . (strlen($bacangRecomMsg) > 20 ? $bacangRecomMsg : '');
 
-        $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg);
-        $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg);
+        $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
+        $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
         . (strlen($de[0]) > 15 ? $de[0] : '')
@@ -124,7 +124,7 @@ class ScheduleCheckDe extends Command {
         ]);
     }
 
-    public function getMsg($data, $cross, $msg1, $msg2) {
+    public function getMsg($data, $cross, $msg1, $msg2, $isDe = true) {
         $arrs = [];
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
@@ -146,7 +146,13 @@ class ScheduleCheckDe extends Command {
                 if ($ind >= $cross) {
                     $msg1 .= implode(',', $arr) . 'x' . $ind / 1000 . 'n.' . "\n";
                     if ($ind > $cross) {
-                        $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / 1000 . 'n.' . "\n";
+                        if($isDe){
+                            if(($ind - $cross)/1000 > 50){
+                                $msg2 .= implode(',', $arr) . 'x' . floor(($ind - $cross) / 1000 / 10)*10 . 'n.' . "\n";
+                            }
+                        }else{
+                            $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / 1000 . 'n.' . "\n";
+                        }
                     }
                 }
             }
