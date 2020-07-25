@@ -52,9 +52,17 @@ class ScheduleCheckResult extends Command {
             }
 
             $userResult = '';
+
+            $userNameMaxLength = 0;
+            foreach ($users as $user) {
+                if($userNameMaxLength < mb_strlen($user['name'])){
+                    $userNameMaxLength = mb_strlen($user['name']);
+                }
+            }
+
             foreach ($users as $user) {
                 $profit   = 0;
-                $userName = $user['name'];
+                $userName = $this->getUserName($user['name'], $userNameMaxLength);
                 // lấy ra danh sách customer theo user
                 $listCustomerByUser = [];
                 if ($user['type'] == 1) {
@@ -113,6 +121,15 @@ class ScheduleCheckResult extends Command {
         } catch (\Exception $ex) {
             $this->info($ex->getMessage());
         }
+    }
+
+    public function getUserName($name, $maxLength)
+    {
+       $n = $maxLength - mb_strlen($name);
+        for ($i = 0; $i < $n; $i++) {
+            $name .= ' ';
+        }
+        return $name;
     }
 
 //    public function handle() {
