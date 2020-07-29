@@ -125,13 +125,14 @@ class ScheduleCheckResult extends Command {
 
     public function getUserName($name, $maxLength)
     {
-       $n = $maxLength - mb_strlen($name);
-       if($name == "Tâm"){
-           $n = $n+1;
-       }elseif ($name == "Sơn"){
-           $n = $n+2;
-       }
-
+        $n = $maxLength - mb_strlen($name);
+        if ($name == "Tâm") {
+            $n = $n + 3;
+        } elseif ($name == "Sơn") {
+            $n = $n + 4;
+        } elseif ($name == "admin" || $name == "Tuyền") {
+            $n = $n + 2;
+        }
         for ($i = 0; $i < $n; $i++) {
             $name .= ' ';
         }
