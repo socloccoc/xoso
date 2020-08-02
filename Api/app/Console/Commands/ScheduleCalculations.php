@@ -56,19 +56,20 @@ class ScheduleCalculations extends Command
                 if($index == 0) {
                     preg_match_all('!\d+!', $node->text(), $matches);
                     foreach ($matches[0] as $ind => $match) {
-                        if ($ind == 2 || $ind == 3) {
+                        if($ind < 6) continue;
+                        if ($ind == 8 || $ind == 9) {
                             $splitLength = 5;
                         }
-                        if ($ind == 4 || $ind == 5) {
+                        if ($ind == 10 || $ind == 11) {
                             $splitLength = 4;
                         }
-                        if ($ind == 6) {
+                        if ($ind == 12) {
                             $splitLength = 3;
                         }
-                        if ($ind == 7) {
+                        if ($ind == 13) {
                             $splitLength = 2;
                         }
-                        if ($ind < 2) {
+                        if ($ind == 7 || $ind == 6) {
                             $result[] = $match;
                         } else {
                             $parts = str_split($match, $splitLength);
