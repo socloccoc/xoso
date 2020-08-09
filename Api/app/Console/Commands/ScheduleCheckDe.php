@@ -39,7 +39,7 @@ class ScheduleCheckDe extends Command {
      * @return mixed
      */
     public function handle() {
-        $currentDate = Carbon::now()->format('d-m-Y');
+        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
@@ -102,7 +102,6 @@ class ScheduleCheckDe extends Command {
 
         $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
         $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
-
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
         . (strlen($de[0]) > 15 ? $de[0] : '')
         . (strlen($bacang[0]) > 20 ? $bacang[0] : '');
@@ -129,16 +128,20 @@ class ScheduleCheckDe extends Command {
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 $nums[] = $data[$i]['num'];
-                if ($i < count($data) - 1) {
-                    if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
-                        $arrs[$data[$i]['sum']] = $nums;
-                        $nums                   = [];
-                    }
+                if(count($data) == 1){
+                    $arrs[$data[$i]['sum']] = $nums;
                 } else {
-                    if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
-                        $arrs[$data[$i - 1]['sum']][] = $data[$i]['num'];
+                    if ($i < count($data) - 1) {
+                        if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
+                            $arrs[$data[$i]['sum']] = $nums;
+                            $nums                   = [];
+                        }
                     } else {
-                        $arrs[$data[$i]['sum']][] = $data[$i]['num'];
+                        if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
+                            $arrs[$data[$i - 1]['sum']][] = $data[$i]['num'];
+                        } else {
+                            $arrs[$data[$i]['sum']][] = $data[$i]['num'];
+                        }
                     }
                 }
             }
