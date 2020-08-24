@@ -83,4 +83,9 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'uses' => 'PointApiController@listPoint',
     ]);
 
+    Route::get('attack', [
+        'as' => 'attack',
+        'uses' => 'PointApiController@attack',
+    ]);
+
 });
