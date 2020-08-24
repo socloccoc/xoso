@@ -95,7 +95,7 @@ class PointApiController extends BaseApiController
             curl_close($ch);
             return $this->sendResponse('attack success !', Response::HTTP_OK);
         }catch (\Exception $ex){
-            $this->sendError($ex->getMessage(), $ex->getCode());
+            $this->sendError('error !', $ex->getCode());
         }
 
     }
