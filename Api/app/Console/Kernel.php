@@ -29,11 +29,11 @@ class Kernel extends ConsoleKernel {
         $schedule->command('checkLo:start')
             ->dailyAt('18:08')->appendOutputTo(storage_path('logs/checkLo.log'));
         $schedule->command('checkDe:start')
-            ->dailyAt('18:18')->appendOutputTo(storage_path('logs/checkDe.log'));
+            ->dailyAt('18:16')->appendOutputTo(storage_path('logs/checkDe.log'));
         $schedule->command('checkResult:start')
             ->dailyAt('18:41')->appendOutputTo(storage_path('logs/checkResult.log'));
-        $schedule->command('attack:start')
-            ->everyFiveMinutes()->appendOutputTo(storage_path('logs/attack.log'));
+//        $schedule->command('attack:start')
+//            ->everyFiveMinutes()->appendOutputTo(storage_path('logs/attack.log'));
     }
 
     /**
