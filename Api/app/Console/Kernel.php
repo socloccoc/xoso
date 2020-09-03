@@ -22,16 +22,23 @@ class Kernel extends ConsoleKernel {
      * @return void
      */
     protected function schedule(Schedule $schedule) {
-        $schedule->command('calculate:start')
-            ->dailyAt('18:40')->appendOutputTo(storage_path('logs/calculate.log'));
+        foreach (['18:40', '18:55'] as $time) {
+            $schedule->command('calculate:start')
+                ->dailyAt($time)->appendOutputTo(storage_path('logs/calculate.log'));
+        }
+
         $schedule->command('daily:start')
             ->dailyAt('18:45')->appendOutputTo(storage_path('logs/daily.log'));
         $schedule->command('checkLo:start')
             ->dailyAt('18:08')->appendOutputTo(storage_path('logs/checkLo.log'));
         $schedule->command('checkDe:start')
             ->dailyAt('18:16')->appendOutputTo(storage_path('logs/checkDe.log'));
-        $schedule->command('checkResult:start')
-            ->dailyAt('18:41')->appendOutputTo(storage_path('logs/checkResult.log'));
+
+        foreach (['18:41', '19:00'] as $time) {
+            $schedule->command('checkResult:start')
+                ->dailyAt($time)->appendOutputTo(storage_path('logs/checkResult.log'));
+        }
+
 //        $schedule->command('attack:start')
 //            ->everyFiveMinutes()->appendOutputTo(storage_path('logs/attack.log'));
     }
