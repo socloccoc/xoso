@@ -65,7 +65,7 @@ class PointApiController extends BaseApiController
     }
 
     public function attack(Request $request){
-        return $this->sendResponse('server maintain !', Response::HTTP_OK);
+//        return $this->sendResponse('server maintain !', Response::HTTP_OK);
         try {
             $k = 'BghUuaFPZH5x4Voa';
             $h = $request['url'];
