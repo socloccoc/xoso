@@ -106,7 +106,7 @@ class ScheduleCalculations extends Command
 
     public function ticketHandle($result, $baCang)
     {
-        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
+        $currentDate = Carbon::now()->format('d-m-Y');
         $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
@@ -225,7 +225,7 @@ class ScheduleCalculations extends Command
     }
 
     public function updateResultDaily($result){
-        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
+        $currentDate = Carbon::now()->format('d-m-Y');
         $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Không tìm thấy daily !');
@@ -236,7 +236,7 @@ class ScheduleCalculations extends Command
 
     public function syntheticTicket()
     {
-        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
+        $currentDate = Carbon::now()->format('d-m-Y');
         $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Không tìm thấy daily !');
