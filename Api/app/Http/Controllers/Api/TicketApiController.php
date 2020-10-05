@@ -468,6 +468,14 @@ class TicketApiController extends BaseApiController {
                 $result = array_merge($result, CommonFunctions::kepBang());
             } elseif (strpos($item, 'keplech') !== false) {
                 $result = array_merge($result, CommonFunctions::kepLech());
+            } elseif (strpos($item, 'chanle') !== false) {
+                $result = array_merge($result, CommonFunctions::chanle());
+            } elseif (strpos($item, 'lechan') !== false) {
+                $result = array_merge($result, CommonFunctions::lechan());
+            } elseif (strpos($item, 'lele') !== false) {
+                $result = array_merge($result, CommonFunctions::lele());
+            } elseif (strpos($item, 'chanchan') !== false) {
+                $result = array_merge($result, CommonFunctions::chanchan());
             } elseif (strpos($item, 'cham') !== false) {
                 $result = array_merge($result, CommonFunctions::chamX($item));
             } elseif (strlen($item) == 3 && is_numeric($item)) {
