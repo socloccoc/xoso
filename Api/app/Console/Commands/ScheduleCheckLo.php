@@ -97,7 +97,7 @@ class ScheduleCheckLo extends Command {
         //        . (strlen($loRecomMsg) > 15 ? $loRecomMsg : '')
         //        . (strlen($xienRecomMsg) > 15 ? $xienRecomMsg : '');
 
-        $lo   = $this->getMsg($los, 250, $loMsg, $loRecomMsg, true);
+        $lo   = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
         $xien = $this->getMsg($xiens, 300000, $xienMsg, $xienRecomMsg);
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
