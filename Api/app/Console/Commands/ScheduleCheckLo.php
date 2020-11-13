@@ -68,9 +68,9 @@ class ScheduleCheckLo extends Command {
             ->orderBy('sum', 'desc')
             ->get();
         $loMsg        = "<b>Lo.</b> \n";
-        $xienMsg      = "<b>Xien.</b> \n";
+        $xienMsg      = "";
         $loRecomMsg   = "<b>Lo.</b> \n";
-        $xienRecomMsg = "<b>Xien.</b> \n";
+        $xienRecomMsg = "";
 //        foreach ($los as $point) {
         //            if ($point['sum'] >= 250) {
         //                $loMsg .= $point['num'] . 'x' . $point['sum'] . 'đ.' . "\n";
@@ -97,16 +97,16 @@ class ScheduleCheckLo extends Command {
         //        . (strlen($loRecomMsg) > 15 ? $loRecomMsg : '')
         //        . (strlen($xienRecomMsg) > 15 ? $xienRecomMsg : '');
 
-        $lo   = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
         $xien = $this->getMsg($xiens, 300000, $xienMsg, $xienRecomMsg);
+        $lo   = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
 
         $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
         . (strlen($lo[0]) > 15 ? $lo[0] : '')
-        . (strlen($xien[0]) > 15 ? $xien[0] : '');
+        . (strlen($xien[0]) > 15 ? str_replace('-', ' ', $xien[0]) : '');
 
         $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
         . (strlen($lo[1]) > 15 ? $lo[1] : '')
-        . (strlen($xien[1]) > 15 ? $xien[1] : '');
+        . (strlen($xien[1]) > 15 ? str_replace('-', ' ', $xien[1]) : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
@@ -140,14 +140,73 @@ class ScheduleCheckLo extends Command {
                     }
                 }
             }
+
+            $xi2 = '<b>Xi2.</b>'."\n";
+            $xi3 = '<b>Xi3.</b>'."\n";
+            $xi4 = '<b>Xi4.</b>'."\n";
+
+            $xi2kn = '<b>Xi2.</b>'."\n";
+            $xi3kn = '<b>Xi3.</b>'."\n";
+            $xi4kn = '<b>Xi4.</b>'."\n";
             foreach ($arrs as $ind => $arr) {
                 if ($ind >= $cross) {
                     $divisor = $islo ? 1 : 1000;
                     $unit    = $islo ? 'd.' : 'n.';
-                    $msg1 .= implode(',', $arr) . 'x' . $ind / $divisor . $unit . "\n";
-                    if ($ind > $cross) {
-                        $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
+                    if($islo) {
+                        $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
+                        if ($ind > $cross) {
+                            $msg2 .= implode(",", $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
+                        }
+                    }else{
+                        foreach ($arr as $item){
+                            if(substr_count($item, '-') == 1){
+                                $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                                if ($ind > $cross) {
+                                    $xi2kn .= $item . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
+                                }
+                            }
+
+                            if(substr_count($item, '-') == 2){
+                                $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                                $cross_x3 = 100000;
+                                if ($ind > $cross_x3) {
+                                    $xi3kn .= $item . 'x' . ($ind - $cross_x3) / $divisor . $unit . "\n";
+                                }
+                            }
+
+                            if(substr_count($item, '-') == 3){
+                                $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                                $cross_x4 = 50000;
+                                if ($ind > $cross_x4) {
+                                    $xi4kn .= $item . 'x' . ($ind - $cross_x4) / $divisor . $unit . "\n";
+                                }
+                            }
+
+                        }
                     }
+                }
+            }
+            if(!$islo) {
+                if(strlen($xi2) > 15){
+                    $msg1 .= $xi2;
+                }
+                if(strlen($xi3) > 15){
+                    $msg1 .= $xi3;
+                }
+                if(strlen($xi4) > 15){
+                    $msg1 .= $xi4;
+                }
+                ///////
+                if(strlen($xi2kn) > 15){
+                    $msg2 .= $xi2;
+                }
+
+                if(strlen($xi3kn) > 15){
+                    $msg2 .= $xi3;
+                }
+
+                if(strlen($xi4kn) > 15){
+                    $msg2 .= $xi4;
                 }
             }
         }
