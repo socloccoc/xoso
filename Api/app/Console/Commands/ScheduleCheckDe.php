@@ -102,20 +102,30 @@ class ScheduleCheckDe extends Command {
 
         $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
         $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
-        $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
+        $text = ""
         . (strlen($de[0]) > 15 ? $de[0] : '')
         . (strlen($bacang[0]) > 20 ? $bacang[0] : '');
 
-        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
+        $textRecom = ""
         . (strlen($de[1]) > 15 ? $de[1] : '')
         . (strlen($bacang[1]) > 20 ? $bacang[1] : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
             'parse_mode' => 'HTML',
+            'text'       => "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>",
+        ]);
+        Telegram::sendMessage([
+            'chat_id'    => config('constants.CHANNEL_ID'),
+            'parse_mode' => 'HTML',
             'text'       => $text,
         ]);
 
+        Telegram::sendMessage([
+            'chat_id'    => config('constants.CHANNEL_ID'),
+            'parse_mode' => 'HTML',
+            'text'       => "<b>Khuyến nghị " . $currentDate . "</b>",
+        ]);
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
             'parse_mode' => 'HTML',
@@ -154,7 +164,11 @@ class ScheduleCheckDe extends Command {
                                 $msg2 .= implode(',', $arr) . 'x' . floor(($ind - $cross) / 1000 / 10)*10 . 'n.' . "\n";
                             }
                         }else{
-                            $msg2 .= implode(',', $arr) . 'x' . ($ind - $cross) / 1000 . 'n.' . "\n";
+                            $m = ($ind - $cross) / 1000;
+                            if($m < 10){
+                                $m = 10;
+                            }
+                            $msg2 .= implode(',', $arr) . 'x' . $m . 'n.' . "\n";
                         }
                     }
                 }

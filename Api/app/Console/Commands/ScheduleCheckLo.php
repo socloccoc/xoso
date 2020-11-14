@@ -100,18 +100,30 @@ class ScheduleCheckLo extends Command {
         $xien = $this->getMsg($xiens, 300000, $xienMsg, $xienRecomMsg);
         $lo   = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
 
-        $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
+        $text = ""
         . (strlen($lo[0]) > 15 ? $lo[0] : '')
         . (strlen($xien[0]) > 15 ? str_replace('-', ' ', $xien[0]) : '');
 
-        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
+        $textRecom = ""
         . (strlen($lo[1]) > 15 ? $lo[1] : '')
         . (strlen($xien[1]) > 15 ? str_replace('-', ' ', $xien[1]) : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
             'parse_mode' => 'HTML',
+            'text'       => "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>",
+        ]);
+
+        Telegram::sendMessage([
+            'chat_id'    => config('constants.CHANNEL_ID'),
+            'parse_mode' => 'HTML',
             'text'       => $text,
+        ]);
+
+        Telegram::sendMessage([
+            'chat_id'    => config('constants.CHANNEL_ID'),
+            'parse_mode' => 'HTML',
+            'text'       => "<b>Khuyến nghị " . $currentDate . "</b>"
         ]);
 
         Telegram::sendMessage([
@@ -149,42 +161,45 @@ class ScheduleCheckLo extends Command {
             $xi3kn = '<b>Xi3.</b>'."\n";
             $xi4kn = '<b>Xi4.</b>'."\n";
             foreach ($arrs as $ind => $arr) {
-                if ($ind >= $cross) {
-                    $divisor = $islo ? 1 : 1000;
-                    $unit    = $islo ? 'd.' : 'n.';
-                    if($islo) {
-                        $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
-                        if ($ind > $cross) {
-                            $msg2 .= implode(",", $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
-                        }
-                    }else{
-                        foreach ($arr as $item){
-                            if(substr_count($item, '-') == 1){
-                                $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                                if ($ind > $cross) {
-                                    $xi2kn .= $item . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
-                                }
-                            }
-
-                            if(substr_count($item, '-') == 2){
-                                $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                                $cross_x3 = 100000;
-                                if ($ind > $cross_x3) {
-                                    $xi3kn .= $item . 'x' . ($ind - $cross_x3) / $divisor . $unit . "\n";
-                                }
-                            }
-
-                            if(substr_count($item, '-') == 3){
-                                $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                                $cross_x4 = 50000;
-                                if ($ind > $cross_x4) {
-                                    $xi4kn .= $item . 'x' . ($ind - $cross_x4) / $divisor . $unit . "\n";
-                                }
-                            }
-
-                        }
+                $divisor = $islo ? 1 : 1000;
+                $unit    = $islo ? 'd.' : 'n.';
+                if ($ind >= $cross && $islo) {
+                    $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
+                    if ($ind > $cross) {
+                        $msg2 .= implode(",", $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
                     }
                 }
+
+                if (!$islo) {
+                    foreach ($arr as $item){
+                        $item = trim($item);
+                        if(substr_count($item, '-') == 1 && $ind >= $cross){
+                            $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                            if ($ind > $cross) {
+                                $xi2kn .= $item . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
+                            }
+                        }
+
+                        if(substr_count($item, '-') == 2 && $ind >= 100000){
+                            $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                            $cross_x3 = 100000;
+                            if ($ind > $cross_x3) {
+                                $xi3kn .= $item . 'x' . ($ind - $cross_x3) / $divisor . $unit . "\n";
+                            }
+                        }
+
+                        if(substr_count($item, '-') == 3 && $ind >= 50000){
+                            $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                            $cross_x4 = 50000;
+                            if ($ind > $cross_x4) {
+                                $xi4kn .= $item . 'x' . ($ind - $cross_x4) / $divisor . $unit . "\n";
+                            }
+                        }
+
+                    }
+
+                }
+
             }
             if(!$islo) {
                 if(strlen($xi2) > 15){
@@ -198,15 +213,15 @@ class ScheduleCheckLo extends Command {
                 }
                 ///////
                 if(strlen($xi2kn) > 15){
-                    $msg2 .= $xi2;
+                    $msg2 .= $xi2kn;
                 }
 
                 if(strlen($xi3kn) > 15){
-                    $msg2 .= $xi3;
+                    $msg2 .= $xi3kn;
                 }
 
                 if(strlen($xi4kn) > 15){
-                    $msg2 .= $xi4;
+                    $msg2 .= $xi4kn;
                 }
             }
         }
