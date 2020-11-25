@@ -137,7 +137,7 @@ class ScheduleCheckDe extends Command {
         $arrs = [];
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
-                $nums[] = $data[$i]['num'];
+                $nums[] = preg_replace('/\s+/', '', $data[$i]['num']);
                 if(count($data) == 1){
                     $arrs[$data[$i]['sum']] = $nums;
                 } else {
@@ -160,9 +160,11 @@ class ScheduleCheckDe extends Command {
                     $msg1 .= implode(',', $arr) . 'x' . $ind / 1000 . 'n.' . "\n";
                     if ($ind > $cross) {
                         if($isDe){
-                            if(($ind - $cross)/1000 > 50){
-                                $msg2 .= implode(',', $arr) . 'x' . floor(($ind - $cross) / 1000 / 10)*10 . 'n.' . "\n";
+                            $n = floor(($ind - $cross) / 1000 / 10)*10;
+                            if($n < 10){
+                                $n = 10;
                             }
+                            $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
                         }else{
                             $m = ($ind - $cross) / 1000;
                             if($m < 10){
