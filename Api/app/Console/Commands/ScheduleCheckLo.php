@@ -166,7 +166,8 @@ class ScheduleCheckLo extends Command {
                 if ($ind >= $cross && $islo) {
                     $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
                     if ($ind > $cross) {
-                        $msg2 .= implode(",", $arr) . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
+                        $k = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                        $msg2 .= implode(",", $arr) . 'x' . $k . $unit . "\n";
                     }
                 }
 
@@ -176,7 +177,8 @@ class ScheduleCheckLo extends Command {
                         if(substr_count($item, '-') == 1 && $ind >= $cross){
                             $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
                             if ($ind > $cross) {
-                                $xi2kn .= $item . 'x' . ($ind - $cross) / $divisor . $unit . "\n";
+                                $n = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                                $xi2kn .= $item . 'x' . $n . $unit . "\n";
                             }
                         }
 
@@ -184,7 +186,8 @@ class ScheduleCheckLo extends Command {
                             $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
                             $cross_x3 = 100000;
                             if ($ind > $cross_x3) {
-                                $xi3kn .= $item . 'x' . ($ind - $cross_x3) / $divisor . $unit . "\n";
+                                $m = ($ind - $cross_x3) / $divisor > 10 ? ($ind - $cross_x3) / $divisor : 10;
+                                $xi3kn .= $item . 'x' . $m . $unit . "\n";
                             }
                         }
 
@@ -192,7 +195,8 @@ class ScheduleCheckLo extends Command {
                             $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
                             $cross_x4 = 50000;
                             if ($ind > $cross_x4) {
-                                $xi4kn .= $item . 'x' . ($ind - $cross_x4) / $divisor . $unit . "\n";
+                                $l = ($ind - $cross_x4) / $divisor > 10 ? ($ind - $cross_x4) / $divisor : 10;
+                                $xi4kn .= $item . 'x' . $l . $unit . "\n";
                             }
                         }
 
