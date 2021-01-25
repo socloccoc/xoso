@@ -329,6 +329,9 @@ class CommonFunctions
     {
         $result = [];
         switch ($str) {
+            case 'tong0':
+                $result = ['00', '19', '28', '37', '46', '55', '64', '73', '82', '91'];
+                break;
             case 'tong1':
                 $result = ['01', '10', '29', '92', '38', '83', '47', '74', '65', '56'];
                 break;
