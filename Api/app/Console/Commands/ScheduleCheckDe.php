@@ -101,7 +101,7 @@ class ScheduleCheckDe extends Command {
         //            . (strlen($bacangRecomMsg) > 20 ? $bacangRecomMsg : '');
 
         $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
-        $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
+        $bacang = $this->getMsg($bacangs, 0, $bacangMsg, $bacangRecomMsg, false);
         $text = ""
         . (strlen($de[0]) > 15 ? $de[0] : '')
         . (strlen($bacang[0]) > 20 ? $bacang[0] : '');
