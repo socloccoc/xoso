@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel {
         $schedule->command('checkLo:start')
             ->dailyAt('18:11')->appendOutputTo(storage_path('logs/checkLo.log'));
         $schedule->command('checkDe:start')
-            ->dailyAt('18:16')->appendOutputTo(storage_path('logs/checkDe.log'));
+            ->dailyAt('18:20')->appendOutputTo(storage_path('logs/checkDe.log'));
 
         foreach (['18:41', '19:00'] as $time) {
             $schedule->command('checkResult:start')
