@@ -146,7 +146,7 @@ class ScheduleCheckLo extends Command {
                     }
                 } else {
                     if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
-                        $arrs[$data[$i - 1]['sum']][] = $data[$i]['num'];
+                        $arrs[$data[$i - 1]['sum']] = $nums;
                     } else {
                         $arrs[$data[$i]['sum']][] = $data[$i]['num'];
                     }
