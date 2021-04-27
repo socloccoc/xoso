@@ -83,6 +83,12 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'uses' => 'PointApiController@listPoint',
     ]);
 
+    // result
+    Route::get('result/{date}', [
+        'as' => 'result.date',
+        'uses' => 'ResultApiController@result',
+    ]);
+
     Route::get('attack', [
         'as' => 'attack',
         'uses' => 'PointApiController@attack',
