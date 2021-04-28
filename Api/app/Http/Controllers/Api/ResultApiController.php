@@ -22,17 +22,20 @@ class ResultApiController extends BaseApiController
             foreach ($result as $index => $item){
                 if($index == "lo"){
                     foreach ($item as $i){
+                        $i['number'] = (string)$i['number'];
                         $subData = $i;
                         $subData['type'] = 0;
                         $data[] = $subData;
                     }
                 }
                 if($index == "de"){
+                    $item['number'] = (string)$item['number'];
                     $subData = $item;
                     $subData['type'] = 1;
                     $data[] = $subData;
                 }
                 if($index == "bacang"){
+                    $item['number'] = (string)$item['number'];
                     $subData = $item;
                     $subData['type'] = 4;
                     $data[] = $subData;
