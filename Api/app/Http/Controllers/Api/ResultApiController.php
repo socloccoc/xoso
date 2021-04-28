@@ -18,7 +18,27 @@ class ResultApiController extends BaseApiController
             if (empty($result)) {
                 $this->sendError('Không tìm thấy bản ghi nào!', Response::HTTP_NOT_FOUND);
             }
-            return $this->sendResponse($result, Response::HTTP_OK);
+            $data = [];
+            foreach ($result as $index => $item){
+                if($index == "lo"){
+                    foreach ($item as $i){
+                        $subData = $i;
+                        $subData['type'] = 0;
+                        $data[] = $subData;
+                    }
+                }
+                if($index == "de"){
+                    $subData = $item;
+                    $subData['type'] = 1;
+                    $data[] = $subData;
+                }
+                if($index == "bacang"){
+                    $subData = $item;
+                    $subData['type'] = 4;
+                    $data[] = $subData;
+                }
+            }
+            return $this->sendResponse($data, Response::HTTP_OK);
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }
