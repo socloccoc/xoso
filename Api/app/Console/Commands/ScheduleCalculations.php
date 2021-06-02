@@ -46,21 +46,20 @@ class ScheduleCalculations extends Command
      */
     public function handle()
     {
-//        $url = "https://www.xosominhngoc.com/ket-qua-xo-so/mien-bac/ha-noi.html";
-        $url = "http://ketqua.net/xo-so-mien-bac";
+        $url = "https://www.xosominhngoc.com/ket-qua-xo-so/mien-bac.html";
+//        $url = "http://ketqua.net/xo-so-mien-bac";
         $crawler = new Crawler(CommonFunctions::retrieveData($url, false));
         try {
             $result = [];
-//            $crawler->filterXPath('//table[@class="bkqtinhmienbac"]/tbody/tr/td/table/tbody')->each(function ($node, $index) use (&$result) {
-            $crawler->filterXPath('//table[@id="result_tab_mb"]/tbody')->each(function ($node, $index) use (&$result) {
+            $crawler->filterXPath('//table[@class="bkqmiennam bkqmienbac"]/tbody')->each(function ($node, $index) use (&$result) {
                 if($index == 0) {
-                    preg_match_all('!\d+!', $node->text(), $matches);
                     $matches2 = [];
-                    foreach ($matches[0] as $ind => $match) {
-                        if(strlen($match) > 4){
-                            $matches2[] = $match;
+                    $node->filter('tr')->each(function ($item, $index) use (&$matches2){
+                        if($index > 2 && $index <= 10 ){
+                            preg_match_all('!\d+!', $item->text(), $matches);
+                            $matches2[] = $matches[0][0];
                         }
-                    }
+                    });
                     foreach ($matches2 as $ind => $match) {
                         if ($ind == 2 || $ind == 3) {
                             $splitLength = 5;
