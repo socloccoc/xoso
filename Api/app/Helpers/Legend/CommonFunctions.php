@@ -419,4 +419,19 @@ class CommonFunctions
     {
         return [substr($str, 0, 2), substr($str, -2)];
     }
+
+    public static function convertToBinary($num)
+    {
+        $x = 0;
+        $y = 0;
+        $num1 = substr($num, 0, 1);
+        $num2 = substr($num, 1, 1);
+        if($num1 % 2 == 1){
+            $x = 1;
+        }
+        if($num2 % 2 == 1){
+            $y = 1;
+        }
+        return $x.$y;
+    }
 }
