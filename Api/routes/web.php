@@ -11,7 +11,14 @@
 |
  */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', 'HomeController@index');
+Route::group(['prefix' => 'ajax'], function () {
+    Route::post('/de', 'AjaxController@De');
+    Route::post('/lo', 'AjaxController@lo');
 });
+
 Route::get('/updated-activity', 'TelegramBotController@updatedActivity');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
