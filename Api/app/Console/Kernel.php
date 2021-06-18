@@ -37,6 +37,9 @@ class Kernel extends ConsoleKernel {
         $schedule->command('save:result')
             ->dailyAt('18:50')->appendOutputTo(storage_path('logs/result.log'));
 
+        $schedule->command('result:get')
+            ->dailyAt('18:55')->appendOutputTo(storage_path('logs/result_get.log'));
+
         foreach (['18:41', '19:00'] as $time) {
             $schedule->command('checkResult:start')
                 ->dailyAt($time)->appendOutputTo(storage_path('logs/checkResult.log'));
