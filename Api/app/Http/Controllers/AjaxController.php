@@ -32,7 +32,7 @@ class AjaxController extends Controller
             $results = SummaryResult::all();
             $binary = [];
             for ($i = 0; $i < count($results) - 1; $i++) {
-                if ($nhi_1 == CommonFunctions::convertToBinary($results[$i]['nhi_1']) && $nhi_2 = CommonFunctions::convertToBinary($results[$i]['nhi_2'])) {
+                if ($nhi_1 == CommonFunctions::convertToBinary($results[$i]['nhi_1']) && $nhi_2 == CommonFunctions::convertToBinary($results[$i]['nhi_2'])) {
                     $binary[$nhi_1 . $nhi_2][] = CommonFunctions::convertToBinary($results[$i]['dac_biet']);
                 }
             }
