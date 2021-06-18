@@ -80,8 +80,24 @@ class AjaxController extends Controller
 
                 if (!(isset($result[$i + ($day + 1)]))) break;
 
+                // tìm các số đã về ở khoảng giữa
+                $arr2 = [];
+                for ($j = $i + 1; $j < $i + ($day + 1); $j++) {
+                    $a = array_values($result[$j]);
+                    $arr2 = array_unique(array_merge($arr2, $a));
+                }
+
                 $item2 = (array_unique(array_values($result[$i + ($day + 1)])));
-                $arr[] = count(array_intersect($item1, $item2)) / $count;
+
+                $temp = array_intersect($item1, $item2);
+                $main = [];
+                foreach ($temp as $item){
+                    if(!in_array($item, $arr2)){
+                        $main[] = $item;
+                    }
+                }
+
+                $arr[] = count($main) / $count;
             }
 
             $data = 0;
