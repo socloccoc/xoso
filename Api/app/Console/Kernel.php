@@ -31,6 +31,10 @@ class Kernel extends ConsoleKernel {
             ->dailyAt('18:45')->appendOutputTo(storage_path('logs/daily.log'));
         $schedule->command('checkLo:start')
             ->dailyAt('18:11')->appendOutputTo(storage_path('logs/checkLo.log'));
+
+        $schedule->command('checkLov2:start')
+            ->dailyAt('18:11')->appendOutputTo(storage_path('logs/checkLov2.log'));
+
         $schedule->command('checkDe:start')
             ->dailyAt('18:20')->appendOutputTo(storage_path('logs/checkDe.log'));
 
@@ -39,6 +43,9 @@ class Kernel extends ConsoleKernel {
 
         $schedule->command('result:get')
             ->dailyAt('18:55')->appendOutputTo(storage_path('logs/result_get.log'));
+
+        $schedule->command('numbers:get')
+            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/numbers_get.log'));
 
         foreach (['18:41', '19:00'] as $time) {
             $schedule->command('checkResult:start')
