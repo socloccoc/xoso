@@ -73,8 +73,15 @@ class ScheduleCheckLoV2 extends Command {
         $loRecomMsg   = "<b>Lo.</b> \n";
         $xienRecomMsg = "";
 
+        $xiemCham   = $this->getMsgCham($xiens, 300000, $xienMsg, $xienRecomMsg);
+        $locham   = $this->getMsgCham($los, 200, $loMsg, $loRecomMsg, true);
+
         $xien = $this->getMsg($xiens, 300000, $xienMsg, $xienRecomMsg);
         $lo   = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
+
+        $textCham = ""
+            . (strlen($locham) > 15 ? $locham : '')
+            . (strlen($xiemCham) > 15 ? str_replace('-', ' ', $xiemCham) : '');
 
         $text = ""
         . (strlen($lo[0]) > 15 ? $lo[0] : '')
@@ -83,6 +90,18 @@ class ScheduleCheckLoV2 extends Command {
         $textRecom = ""
         . (strlen($lo[1]) > 15 ? $lo[1] : '')
         . (strlen($xien[1]) > 15 ? str_replace('-', ' ', $xien[1]) : '');
+
+        Telegram::sendMessage([
+            'chat_id'    => '-1001466757473',
+            'parse_mode' => 'HTML',
+            'text'       => "<b>Thông tin Lô Chạm ngày " . $currentDate . "</b>",
+        ]);
+
+        Telegram::sendMessage([
+            'chat_id'    => '-1001466757473',
+            'parse_mode' => 'HTML',
+            'text'       => $textCham,
+        ]);
 
         Telegram::sendMessage([
             'chat_id'    => '-1001466757473',
@@ -109,6 +128,102 @@ class ScheduleCheckLoV2 extends Command {
         ]);
 
     }
+
+    public function getMsgCham($data, $cross, $msg1, $msg2, $islo = false) {
+        $arrs = [];
+        if (!empty($data)) {
+            for ($i = 0; $i < count($data); $i++) {
+                $nums[] = $data[$i]['num'];
+                if ($i < count($data) - 1) {
+                    if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
+                        $arrs[$data[$i]['sum']] = $nums;
+                        $nums                   = [];
+                    }
+                } else {
+                    if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
+                        $arrs[$data[$i - 1]['sum']] = $nums;
+                    } else {
+                        $arrs[$data[$i]['sum']][] = $data[$i]['num'];
+                    }
+                }
+            }
+
+            $xi2kn = '<b>Xi2.</b>'."\n";
+            $xi3kn = '<b>Xi3.</b>'."\n";
+            $xi4kn = '<b>Xi4.</b>'."\n";
+            $aList = $this->Alist();
+
+            foreach ($arrs as $ind => $arr) {
+
+                $divisor = $islo ? 1 : 1000;
+                $unit    = $islo ? 'd.' : 'n.';
+                if ($islo) {
+
+                    $k = $ind / $divisor;
+
+                    // kiểm tra xem có ở trong A list hay không
+                    $arr_new = [];
+                    foreach ($arr as $it){
+                        if(in_array($it, $aList)){
+                            $arr_new[] = $it;
+                        }
+                    }
+
+                    if(!empty($arr_new)){
+                        $msg2 .= implode(",", $arr_new) . 'x' . $k . $unit . "\n";
+                    }
+
+                }
+
+                if (!$islo) {
+
+                    foreach ($arr as $item){
+                        $item = trim($item);
+                        $check = $this->checkExist($aList, $item);
+                        if(substr_count($item, '-') == 1){
+                            if ($check) {
+                                $n = ($ind) / $divisor;
+                                $xi2kn .= $item . 'x' . $n . $unit . "\n";
+                            }
+                        }
+
+                        if(substr_count($item, '-') == 2){
+                            if ($check) {
+                                $m = ($ind) / $divisor;
+                                $xi3kn .= $item . 'x' . $m . $unit . "\n";
+                            }
+                        }
+
+                        if(substr_count($item, '-') == 3){
+                            if ($check) {
+                                $l = ($ind) / $divisor;
+                                $xi4kn .= $item . 'x' . $l . $unit . "\n";
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+            if(!$islo) {
+                if(strlen($xi2kn) > 15){
+                    $msg2 .= $xi2kn;
+                }
+
+                if(strlen($xi3kn) > 15){
+                    $msg2 .= $xi3kn;
+                }
+
+                if(strlen($xi4kn) > 15){
+                    $msg2 .= $xi4kn;
+                }
+            }
+        }
+
+        return $msg2;
+    }
+
 
     public function getMsg($data, $cross, $msg1, $msg2, $islo = false) {
         $arrs = [];
