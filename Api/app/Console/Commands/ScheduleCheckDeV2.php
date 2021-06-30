@@ -203,13 +203,17 @@ class ScheduleCheckDeV2 extends Command {
                                 $n = 10;
                             }
                             $arr = $this->checkExist($deMin, $arr, true);
-                            $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
+                            if(!empty($arr)) {
+                                $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
+                            }
                         }else{
                             $m = ($ind - $cross) / 1000;
                             if($m < 10){
                                 $m = 10;
                             }
-                            $arr = $this->checkExist($deMin, $arr);
+                            if(!empty($arr)) {
+                                $arr = $this->checkExist($deMin, $arr);
+                            }
                             $msg2 .= implode(',', $arr) . 'x' . $m . 'n.' . "\n";
                         }
                     }
