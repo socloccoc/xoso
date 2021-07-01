@@ -78,8 +78,8 @@ class ScheduleCheckDeV2 extends Command {
         $decham     = $this->getMsgCham($des, 200000, $deMsg, $deRecomMsg, true);
         $bacangcham = $this->getMsgCham($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
 
-        $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
-        $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
+        $bacang = $this->getMsg($bacangs, 100000, $bacangMsg, $bacangRecomMsg, false);
+        $de     = $this->getMsg($des, 600000, $deMsg, $deRecomMsg, true);
 
         $textCham = ""
             . (strlen($decham) > 15 ? $decham : '')
@@ -120,6 +120,7 @@ class ScheduleCheckDeV2 extends Command {
             'parse_mode' => 'HTML',
             'text'       => "<b>Khuyến nghị " . $currentDate . "</b>",
         ]);
+
         Telegram::sendMessage([
             'chat_id'    => '-1001466757473',
             'parse_mode' => 'HTML',
