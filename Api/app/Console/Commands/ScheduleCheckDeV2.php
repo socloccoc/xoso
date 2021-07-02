@@ -41,7 +41,7 @@ class ScheduleCheckDeV2 extends Command {
      * @return mixed
      */
     public function handle() {
-        $currentDate = Carbon::now()->format('d-m-Y');
+        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
@@ -207,9 +207,11 @@ class ScheduleCheckDeV2 extends Command {
                     }
                     if($ind > $cross){
                         $n = floor(($ind - $cross) / 1000 / 10) * 10;
-                        $arr2 = $this->checkNotExist($deMin, $arr, true);
-                        if (!empty($arr2)) {
-                            $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                        if($n > 0) {
+                            $arr2 = $this->checkNotExist($deMin, $arr, true);
+                            if (!empty($arr2)) {
+                                $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                            }
                         }
                     }
 
@@ -222,9 +224,11 @@ class ScheduleCheckDeV2 extends Command {
 
                     if($ind > $cross){
                         $n = floor(($ind - $cross) / 1000 / 10) * 10;
-                        $arr2 = $this->checkNotExist($deMin, $arr, true);
-                        if (!empty($arr2)) {
-                            $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                        if($n > 0) {
+                            $arr2 = $this->checkNotExist($deMin, $arr, true);
+                            if (!empty($arr2)) {
+                                $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                            }
                         }
                     }
                 }
@@ -276,7 +280,7 @@ class ScheduleCheckDeV2 extends Command {
 
     public function deMin()
     {
-        $resultYesterday = SummaryResult::orderBy('id', 'DESC')->skip(0)->take(1)->first()->toArray();
+        $resultYesterday = SummaryResult::orderBy('id', 'DESC')->skip(1)->take(1)->first()->toArray();
         $nhi_1 = CommonFunctions::convertToBinary($resultYesterday['nhi_1']);
         $nhi_2 = CommonFunctions::convertToBinary($resultYesterday['nhi_2']);
 
