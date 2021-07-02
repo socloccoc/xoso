@@ -41,7 +41,7 @@ class ScheduleCheckDeV2 extends Command {
      * @return mixed
      */
     public function handle() {
-        $currentDate = Carbon::now()->format('d-m-Y');
+        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
@@ -197,23 +197,39 @@ class ScheduleCheckDeV2 extends Command {
             foreach ($arrs as $ind => $arr) {
                 if ($ind >= $cross) {
                     $msg1 .= implode(',', $arr) . 'x' . $ind / 1000 . 'n.' . "\n";
-                    if ($ind < $cross) {
-                        if($isDe){
-                            $n = floor(($ind) / 1000 / 10)*10;
-                            $arr = $this->checkExist($deMin, $arr, true);
-                            if(!empty($arr)) {
-                                $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
-                            }
-                        }else{
-                            $m = ($ind) / 1000;
-                            if(!empty($arr)) {
-                                $arr = $this->checkExist($deMin, $arr);
-                            }
-                            $msg2 .= implode(',', $arr) . 'x' . $m . 'n.' . "\n";
+                }
+
+                if ($isDe) {
+                    $n = floor(($ind) / 1000 / 10) * 10;
+                    $arr2 = $this->checkExist($deMin, $arr, true);
+                    if (!empty($arr2)) {
+                        $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                    }
+                    if($ind > $cross){
+                        $n = floor(($ind - $cross) / 1000 / 10) * 10;
+                        $arr2 = $this->checkNotExist($deMin, $arr, true);
+                        if (!empty($arr2)) {
+                            $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                        }
+                    }
+
+                } else {
+                    $m = ($ind) / 1000;
+                    $arr2 = $this->checkExist($deMin, $arr);
+                    if(!empty($arr2)) {
+                        $msg2 .= implode(',', $arr2) . 'x' . $m . 'n.' . "\n";
+                    }
+
+                    if($ind > $cross){
+                        $n = floor(($ind - $cross) / 1000 / 10) * 10;
+                        $arr2 = $this->checkNotExist($deMin, $arr, true);
+                        if (!empty($arr2)) {
+                            $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
                         }
                     }
                 }
             }
+
         }
 
         return [$msg1, $msg2];
@@ -235,6 +251,23 @@ class ScheduleCheckDeV2 extends Command {
                 if (!in_array($itC, $demin)) {
                     $result[] = $it;
                 }
+            }
+
+        }
+        return $result;
+    }
+
+    public function checkNotExist($demin, $arr, $isDe = false){
+        $result = [];
+        foreach ($arr as $it){
+            $itB = $it;
+            if(!$isDe) {
+                $itB = substr($it, 1, 2);
+            }
+            $itC = CommonFunctions::convertToBinary($itB);
+
+            if (in_array($itC, $demin)) {
+                $result[] = $it;
             }
 
         }
