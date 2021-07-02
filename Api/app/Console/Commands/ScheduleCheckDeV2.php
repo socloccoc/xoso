@@ -201,9 +201,11 @@ class ScheduleCheckDeV2 extends Command {
 
                 if ($isDe) {
                     $n = floor(($ind) / 1000 / 10) * 10;
-                    $arr2 = $this->checkExist($deMin, $arr, true);
-                    if (!empty($arr2)) {
-                        $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                    if($n > 0) {
+                        $arr2 = $this->checkExist($deMin, $arr, true);
+                        if (!empty($arr2)) {
+                            $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
+                        }
                     }
                     if($ind > $cross){
                         $n = floor(($ind - $cross) / 1000 / 10) * 10;
@@ -217,9 +219,11 @@ class ScheduleCheckDeV2 extends Command {
 
                 } else {
                     $m = ($ind) / 1000;
-                    $arr2 = $this->checkExist($deMin, $arr);
-                    if(!empty($arr2)) {
-                        $msg2 .= implode(',', $arr2) . 'x' . $m . 'n.' . "\n";
+                    if($m > 0) {
+                        $arr2 = $this->checkExist($deMin, $arr);
+                        if (!empty($arr2)) {
+                            $msg2 .= implode(',', $arr2) . 'x' . $m . 'n.' . "\n";
+                        }
                     }
 
                     if($ind > $cross){
