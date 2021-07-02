@@ -197,21 +197,15 @@ class ScheduleCheckDeV2 extends Command {
             foreach ($arrs as $ind => $arr) {
                 if ($ind >= $cross) {
                     $msg1 .= implode(',', $arr) . 'x' . $ind / 1000 . 'n.' . "\n";
-                    if ($ind > $cross) {
+                    if ($ind < $cross) {
                         if($isDe){
-                            $n = floor(($ind - $cross) / 1000 / 10)*10;
-                            if($n < 10){
-                                $n = 10;
-                            }
+                            $n = floor(($ind) / 1000 / 10)*10;
                             $arr = $this->checkExist($deMin, $arr, true);
                             if(!empty($arr)) {
                                 $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
                             }
                         }else{
-                            $m = ($ind - $cross) / 1000;
-                            if($m < 10){
-                                $m = 10;
-                            }
+                            $m = ($ind) / 1000;
                             if(!empty($arr)) {
                                 $arr = $this->checkExist($deMin, $arr);
                             }
