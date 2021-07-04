@@ -229,7 +229,7 @@ class ScheduleCheckDeV2 extends Command {
                     if($ind > $cross){
                         $n = floor(($ind - $cross) / 1000 / 10) * 10;
                         if($n > 0) {
-                            $arr2 = $this->checkNotExist($deMin, $arr, true);
+                            $arr2 = $this->checkNotExist($deMin, $arr);
                             if (!empty($arr2)) {
                                 $msg2 .= implode(',', $arr2) . 'x' . $n . 'n.' . "\n";
                             }
