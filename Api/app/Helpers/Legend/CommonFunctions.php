@@ -422,6 +422,12 @@ class CommonFunctions
 
     public static function convertToBinary($num)
     {
+        if($num < 10)
+        {
+            if(strlen($num) == 1){
+                $num = '0'.$num;
+            }
+        }
         $x = 0;
         $y = 0;
         $num1 = substr($num, 0, 1);
