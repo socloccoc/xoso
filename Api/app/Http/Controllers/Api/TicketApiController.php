@@ -39,11 +39,10 @@ class TicketApiController extends BaseApiController {
         }
 
         $userTest = User::where('key', '444888')->first();
-        $customerTest = Customer::where('user_id', $userTest['id'])->get();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
         $currentDate = Carbon::now()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
-        $customerDailyTest = CustomerDaily::where('customer_id', $customerTest['id'])->where('daily_id', $daily['id'])->pluck('id')->toArray();
-
+        $customerDailyTest = CustomerDaily::whereIn('customer_id', $customerTest)->where('daily_id', $daily['id'])->pluck('id')->toArray();
         if(!in_array($request['customer_daily_id'], $customerDailyTest)) {
             // lô và xiên(type: 0,2,3,4,5,6) 18h21 đến 19h15 sẽ không tạo đc
             $curentTime = Carbon::now()->format('H:i');
