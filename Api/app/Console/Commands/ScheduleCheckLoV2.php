@@ -262,18 +262,30 @@ class ScheduleCheckLoV2 extends Command {
                         $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
                     }
 
-                    $k = $ind / $divisor > 10 ? $ind / $divisor : 10;
+                    $k = $ind / $divisor;
+
+                    if($k < 10) continue;
 
                     // kiểm tra xem có ở trong A list hay không
                     $arr_new = [];
+                    $arr_new_2 = [];
                     foreach ($arr as $it){
                         if(!in_array($it, $aList)){
                             $arr_new[] = $it;
+                        }else{
+                            if($ind > 600){
+                                $k2 = ($ind - 600) / $divisor > 10 ? ($ind-600) / $divisor : 10;
+                                $arr_new_2[] = $it;
+                            }
                         }
                     }
 
                     if(!empty($arr_new)){
                         $msg2 .= implode(",", $arr_new) . 'x' . $k . $unit . "\n";
+                    }
+
+                    if(!empty($arr_new_2)){
+                        $msg2 .= implode(",", $arr_new_2) . 'x' . $k2 . $unit . "\n";
                     }
 
                 }
@@ -357,7 +369,7 @@ class ScheduleCheckLoV2 extends Command {
         // lấy những số mà 6 ngày chưa về
         $results = SummaryResult::orderBy('id', 'desc')->select('dac_biet', 'nhat', 'nhi_1', 'nhi_2', 'ba_1', 'ba_2', 'ba_3', 'ba_4', 'ba_5', 'ba_6',
             'tu_1', 'tu_2', 'tu_3', 'tu_4', 'nam_1', 'nam_2', 'nam_3', 'nam_4', 'nam_5', 'nam_6', 'sau_1', 'sau_2', 'sau_3', 'bay_1', 'bay_2', 'bay_3', 'bay_4')
-            ->limit(6)->get()->toArray();
+            ->skip(0)->take(6)->get()->toArray();
         $arr = [];
         foreach ($results as $result) {
             $a = array_values($result);

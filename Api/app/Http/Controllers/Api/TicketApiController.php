@@ -38,18 +38,26 @@ class TicketApiController extends BaseApiController {
             return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
         }
 
-        // lô và xiên(type: 0,2,3,4,5,6) 18h21 đến 19h15 sẽ không tạo đc
-        $curentTime = Carbon::now()->format('H:i');
-        if ($curentTime > '18:20' && $curentTime < '19:15') {
-            if ($this->checkLoXien($request['type'])) {
-                return $this->sendError('Lô và Xiên từ 18h21 đến 19h15 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
-            }
-        }
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->get();
+        $currentDate = Carbon::now()->format('d-m-Y');
+        $daily       = Daily::where('date', $currentDate)->first();
+        $ustomerDailyTest = CustomerDaily::where('customer_id', $customerTest['id'])->where('daily_id', $daily['id'])->pluck('id')->toArray();
 
-        // đề và ba càng (type: 1, 7)  từ 18h30 đến 19h15 sẽ ko tạo được
-        if ($curentTime > '18:30' && $curentTime < '19:15') {
-            if ($this->checkDeVaBacang($request['type'])) {
-                return $this->sendError('Đề và Ba Càng từ 18h30 đến 19h15 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+        if(!in_array($request['customer_daily_id'], $ustomerDailyTest)) {
+            // lô và xiên(type: 0,2,3,4,5,6) 18h21 đến 19h15 sẽ không tạo đc
+            $curentTime = Carbon::now()->format('H:i');
+            if ($curentTime > '18:20' && $curentTime < '19:15') {
+                if ($this->checkLoXien($request['type'])) {
+                    return $this->sendError('Lô và Xiên từ 18h21 đến 19h15 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+                }
+            }
+
+            // đề và ba càng (type: 1, 7)  từ 18h30 đến 19h15 sẽ ko tạo được
+            if ($curentTime > '18:30' && $curentTime < '19:15') {
+                if ($this->checkDeVaBacang($request['type'])) {
+                    return $this->sendError('Đề và Ba Càng từ 18h30 đến 19h15 sẽ không tạo được!', Response::HTTP_BAD_REQUEST);
+                }
             }
         }
 

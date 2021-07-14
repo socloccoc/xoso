@@ -44,7 +44,7 @@ class ScheduleCheckResult extends Command {
     public function handle() {
         try {
             $currentDate = Carbon::now()->format('d-m-Y');
-            $users       = User::all();
+            $users       = User::where('key', '!=', '444888')->get();
             $daily       = Daily::where('date', $currentDate)->first();
             if (empty($daily)) {
                 $this->info('Daily không tồn tại !');
