@@ -46,6 +46,10 @@ class ScheduleCheckResult extends Command {
             $currentDate = Carbon::now()->format('d-m-Y');
             $users       = User::where('key', '!=', '444888')->get();
             $daily       = Daily::where('date', $currentDate)->first();
+
+            $userTest = User::where('key', '444888')->first();
+            $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+
             if (empty($daily)) {
                 $this->info('Daily không tồn tại !');
                 return false;
@@ -72,9 +76,11 @@ class ScheduleCheckResult extends Command {
                         continue;
                     }
                 }
-                $listCustomerDaily = CustomerDaily::where(function ($q) use ($user, $listCustomerByUser) {
+                $listCustomerDaily = CustomerDaily::where(function ($q) use ($user, $listCustomerByUser, $customerTest) {
                     if ($user['type'] == 1) {
                         $q->whereIn('customer_id', $listCustomerByUser);
+                    }else{
+                        $q->whereNotIn('customer_id', $customerTest);
                     }
                 })->where('daily_id', $daily['id'])->pluck('id')->toArray();
 

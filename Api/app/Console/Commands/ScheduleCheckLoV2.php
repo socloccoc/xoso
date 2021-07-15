@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
 use App\Models\Point;
 use App\Models\SummaryResult;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -48,8 +50,11 @@ class ScheduleCheckLoV2 extends Command {
             return false;
         }
 
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+
         // danh sách customer_daily theo customer
-        $listCustomerDaily = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+        $listCustomerDaily = CustomerDaily::where('daily_id', $daily['id'])->whereNotIn('customer_id', $customerTest)->pluck('id')->toArray();
 
         if (empty($listCustomerDaily)) {
             $this->info('Customer_daily không tồn tại !');
