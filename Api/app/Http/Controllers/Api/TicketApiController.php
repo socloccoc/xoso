@@ -43,6 +43,7 @@ class TicketApiController extends BaseApiController {
         $currentDate = Carbon::now()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         $customerDailyTest = CustomerDaily::whereIn('customer_id', $customerTest)->where('daily_id', $daily['id'])->pluck('id')->toArray();
+
         if(!in_array($request['customer_daily_id'], $customerDailyTest)) {
             // lô và xiên(type: 0,2,3,4,5,6) 18h21 đến 19h15 sẽ không tạo đc
             $curentTime = Carbon::now()->format('H:i');
