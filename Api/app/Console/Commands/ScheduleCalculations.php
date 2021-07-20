@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
 use App\Models\Ticket;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Helpers\Legend\CommonFunctions;
@@ -111,7 +112,11 @@ class ScheduleCalculations extends Command
             $this->info('Daily không tồn tại !');
             return;
         }
-        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+
+        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->whereNotIn('customer_id', $customerTest)->pluck('id')->toArray();
         $tickets = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
         if (empty($tickets)) {
             $this->info('Không tìm thấy ticket nào !');
@@ -241,7 +246,9 @@ class ScheduleCalculations extends Command
             $this->info('Không tìm thấy daily !');
             return;
         }
-        $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->get();
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+        $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->whereNotIn('customer_id', $customerTest)->get();
         if (empty($customerDaily)) {
             $this->info('Không tìm thấy customerDaily !');
             return;

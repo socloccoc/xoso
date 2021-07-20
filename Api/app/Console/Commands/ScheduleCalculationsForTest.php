@@ -6,13 +6,14 @@ use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
 use App\Models\Ticket;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Helpers\Legend\CommonFunctions;
 use Symfony\Component\DomCrawler\Crawler;
 use drupol\phpermutations\Generators\Combinations;
 
-class ScheduleCalculations extends Command
+class ScheduleCalculationsForTest extends Command
 {
     const PERCENT = [2 => 10, 3 => 40, 4 => 100];
     /**
@@ -20,7 +21,7 @@ class ScheduleCalculations extends Command
      *
      * @var string
      */
-    protected $signature = 'calculate:start';
+    protected $signature = 'calculate_test:start';
 
     /**
      * The console command description.
@@ -46,45 +47,9 @@ class ScheduleCalculations extends Command
      */
     public function handle()
     {
-        $url = "https://www.xosominhngoc.com/ket-qua-xo-so/mien-bac.html";
-//        $url = "http://ketqua.net/xo-so-mien-bac";
-        $crawler = new Crawler(CommonFunctions::retrieveData($url, false));
         try {
-            $result = [];
-            $crawler->filterXPath('//table[@class="bkqmiennam bkqmienbac"]/tbody')->each(function ($node, $index) use (&$result) {
-                if($index == 0) {
-                    $matches2 = [];
-                    $node->filter('tr')->each(function ($item, $index) use (&$matches2){
-                        if($index > 2 && $index <= 10 ){
-                            preg_match_all('!\d+!', $item->text(), $matches);
-                            $matches2[] = $matches[0][0];
-                        }
-                    });
-                    foreach ($matches2 as $ind => $match) {
-                        if ($ind == 2 || $ind == 3) {
-                            $splitLength = 5;
-                        }
-                        if ($ind == 4 || $ind == 5) {
-                            $splitLength = 4;
-                        }
-                        if ($ind == 6) {
-                            $splitLength = 3;
-                        }
-                        if ($ind == 7) {
-                            $splitLength = 2;
-                        }
-                        if ($ind == 0 || $ind == 1) {
-                            $result[] = $match;
-                        } else {
-                            $parts = str_split($match, $splitLength);
-                            foreach ($parts as $part) {
-                                $result[] = $part;
-                            }
-                        }
-                    }
-                }
-            });
-            $this->updateResultDaily(implode('|', $result));
+            $daily = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
+            $result = explode('|', $daily['result']);
             $data = [];
             $baCang = 000;
             if (!empty($result)) {
@@ -105,13 +70,16 @@ class ScheduleCalculations extends Command
 
     public function ticketHandle($result, $baCang)
     {
-        $currentDate = Carbon::now()->format('d-m-Y');
-        $daily = Daily::where('date', $currentDate)->first();
+        $daily = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
             return;
         }
-        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->pluck('id')->toArray();
+
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+
+        $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->whereIn('customer_id', $customerTest)->pluck('id')->toArray();
         $tickets = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
         if (empty($tickets)) {
             $this->info('Không tìm thấy ticket nào !');
@@ -223,25 +191,19 @@ class ScheduleCalculations extends Command
         $this->syntheticTicket();
     }
 
-    public function updateResultDaily($result){
-        $currentDate = Carbon::now()->format('d-m-Y');
-        $daily = Daily::where('date', $currentDate)->first();
-        if (empty($daily)) {
-            $this->info('Không tìm thấy daily !');
-            return;
-        }
-        $daily->update(['result' => $result]);
-    }
-
     public function syntheticTicket()
     {
-        $currentDate = Carbon::now()->format('d-m-Y');
-        $daily = Daily::where('date', $currentDate)->first();
+        $daily = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
+
         if (empty($daily)) {
             $this->info('Không tìm thấy daily !');
             return;
         }
-        $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->get();
+
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+
+        $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->whereIn('customer_id', $customerTest)->get();
         if (empty($customerDaily)) {
             $this->info('Không tìm thấy customerDaily !');
             return;
