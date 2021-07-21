@@ -9,6 +9,7 @@ use App\Models\Daily;
 use App\Models\Point;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\CalculationsForTestService;
 use Carbon\Carbon;
 use drupol\phpermutations\Generators\Combinations;
 use Illuminate\Http\Request;
@@ -38,11 +39,13 @@ class TicketApiController extends BaseApiController {
             return $this->sendError($validator->errors()->first(), Response::HTTP_BAD_REQUEST);
         }
 
-        $userTest = User::where('key', '444888')->first();
-        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
         $currentDate = Carbon::now()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
-        $customerDailyTest = CustomerDaily::whereIn('customer_id', $customerTest)->where('daily_id', $daily['id'])->pluck('id')->toArray();
+
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+        $dailyTest = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
+        $customerDailyTest = CustomerDaily::whereIn('customer_id', $customerTest)->where('daily_id', $dailyTest['id'])->pluck('id')->toArray();
 
         if(!in_array($request['customer_daily_id'], $customerDailyTest)) {
             // lô và xiên(type: 0,2,3,4,5,6) 18h21 đến 19h15 sẽ không tạo đc
@@ -81,6 +84,11 @@ class TicketApiController extends BaseApiController {
             if ($ticket) {
                 $this->updateMoneyIn($request['customer_daily_id'], $request['fee']);
                 $this->updatePoint($ticket, $ticket['diem_tien'], false);
+                if(in_array($request['customer_daily_id'], $customerDailyTest)) {
+                    // calculate
+                    $calculateService = app(CalculationsForTestService::class);
+                    $calculateService->handle();
+                }
                 DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
