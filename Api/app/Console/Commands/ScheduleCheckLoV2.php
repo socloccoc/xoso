@@ -302,8 +302,8 @@ class ScheduleCheckLoV2 extends Command {
                         $check = $this->checkExist($aList, $item);
                         if(substr_count($item, '-') == 1 && $ind >= $cross){
                             $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                            if ($ind > $cross && !$check) {
-                                $n = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                            if (!$check) {
+                                $n = ($ind) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
                                 $xi2kn .= $item . 'x' . $n . $unit . "\n";
                             }
                         }
@@ -311,8 +311,8 @@ class ScheduleCheckLoV2 extends Command {
                         if(substr_count($item, '-') == 2 && $ind >= 100000){
                             $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
                             $cross_x3 = 100000;
-                            if ($ind > $cross_x3 && !$check) {
-                                $m = ($ind - $cross_x3) / $divisor > 10 ? ($ind - $cross_x3) / $divisor : 10;
+                            if (!$check) {
+                                $m = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
                                 $xi3kn .= $item . 'x' . $m . $unit . "\n";
                             }
                         }
@@ -320,8 +320,8 @@ class ScheduleCheckLoV2 extends Command {
                         if(substr_count($item, '-') == 3 && $ind >= 50000){
                             $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
                             $cross_x4 = 50000;
-                            if ($ind > $cross_x4 && !$check) {
-                                $l = ($ind - $cross_x4) / $divisor > 10 ? ($ind - $cross_x4) / $divisor : 10;
+                            if (!$check) {
+                                $l = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
                                 $xi4kn .= $item . 'x' . $l . $unit . "\n";
                             }
                         }
