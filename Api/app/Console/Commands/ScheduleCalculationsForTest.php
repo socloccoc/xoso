@@ -78,7 +78,6 @@ class ScheduleCalculationsForTest extends Command
 
         $userTest = User::where('key', '444888')->first();
         $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
-
         $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->whereIn('customer_id', $customerTest)->pluck('id')->toArray();
         $tickets = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
         if (empty($tickets)) {
@@ -292,7 +291,7 @@ class ScheduleCalculationsForTest extends Command
                 $result = array_merge($result, CommonFunctions::chanchan());
             } elseif (strpos($item, 'cham') !== false) {
                 $result = array_merge($result, CommonFunctions::chamX($item));
-            } elseif (strlen($item) == 3 && is_numeric($item)){
+            } elseif (strlen($item) == 3 && is_numeric($item)) {
                 $result = array_merge($result, [substr($item, 0, 2), substr($item, -2)]);
             } else {
                 $result = array_merge($result, [$item]);
@@ -316,12 +315,12 @@ class ScheduleCalculationsForTest extends Command
         return $data;
     }
 
-    public function checkLo($result, $arr, $xien=false)
+    public function checkLo($result, $arr, $xien = false)
     {
-        if($xien){
+        if ($xien) {
             $result = array_unique($result);
             $data = [];
-            foreach ($result as $item){
+            foreach ($result as $item) {
                 $data[] = $item;
             }
             $result = $data;

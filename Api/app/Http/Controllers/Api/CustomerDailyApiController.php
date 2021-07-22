@@ -32,6 +32,12 @@ class CustomerDailyApiController extends BaseApiController
         if (empty($cutomerById)) {
             return $this->sendError('Customer không tồn tại !', Response::HTTP_BAD_REQUEST);
         }
+
+        $userTest = User::where('key', '444888')->first();
+        $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+        if(in_array($cutomerById['id'], $customerTest)){
+            $daily = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
+        }
         try {
             $data = [
                 'daily_id'    => $daily['id'],
