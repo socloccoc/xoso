@@ -289,7 +289,7 @@ class ScheduleCheckDeV2 extends Command {
 
     public function deMin()
     {
-        $resultYesterday = SummaryResult::orderBy('id', 'DESC')->skip(0)->take(1)->first()->toArray();
+        $resultYesterday = SummaryResult::orderBy('id', 'DESC')->skip(1)->take(1)->first()->toArray();
         $nhi_1 = CommonFunctions::convertToBinary($resultYesterday['nhi_1']);
         $nhi_2 = CommonFunctions::convertToBinary($resultYesterday['nhi_2']);
 
