@@ -172,19 +172,19 @@ class TicketApiController extends BaseApiController {
             }
 
             // lô và xiên(type: 0,2,3,4,5,6) từ 18h20 đến 19h15 sẽ không tạo đc
-            $curentTime = Carbon::now()->format('H:i');
-            if ($curentTime > '18:20' && $curentTime < '19:15') {
-                if ($this->checkLoXien($request['type'])) {
-                    return $this->sendError('Lô và Xiên từ 18h20 đến 19h15 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
-                }
-            }
-
-            // đề và ba càng (type: 1, 7)  từ 18h31 đến 19h15 sẽ ko tạo được
-            if ($curentTime > '18:30' && $curentTime < '19:15') {
-                if ($this->checkDeVaBacang($request['type'])) {
-                    return $this->sendError('Đề và Ba Càng từ 18h31 đến 19h15 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
-                }
-            }
+//            $curentTime = Carbon::now()->format('H:i');
+//            if ($curentTime > '18:20' && $curentTime < '19:15') {
+//                if ($this->checkLoXien($request['type'])) {
+//                    return $this->sendError('Lô và Xiên từ 18h20 đến 19h15 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
+//                }
+//            }
+//
+//            // đề và ba càng (type: 1, 7)  từ 18h31 đến 19h15 sẽ ko tạo được
+//            if ($curentTime > '18:30' && $curentTime < '19:15') {
+//                if ($this->checkDeVaBacang($request['type'])) {
+//                    return $this->sendError('Đề và Ba Càng từ 18h31 đến 19h15 sẽ không thể cập nhật!', Response::HTTP_BAD_REQUEST);
+//                }
+//            }
 
             $data = [
                 'chuoi_so'  => $request['chuoi_so'],
@@ -230,19 +230,19 @@ class TicketApiController extends BaseApiController {
             $curentDate = Carbon::now()->format('Y-m-d');
             $curentTime = Carbon::now()->format('H:i');
 
-            if ($curentDate == $daily['date']) {
-                if ($curentTime > '18:20') {
-                    if ($this->checkLoXien($ticket['type'])) {
-                        return $this->sendError('Lô và Xiên chỉ được xóa trước 18h20 cùng ngày !', Response::HTTP_BAD_REQUEST);
-                    }
-                }
-
-                if ($curentTime > '18:30') {
-                    if ($this->checkDeVaBacang($ticket['type'])) {
-                        return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h30 cùng ngày!', Response::HTTP_BAD_REQUEST);
-                    }
-                }
-            }
+//            if ($curentDate == $daily['date']) {
+//                if ($curentTime > '18:20') {
+//                    if ($this->checkLoXien($ticket['type'])) {
+//                        return $this->sendError('Lô và Xiên chỉ được xóa trước 18h20 cùng ngày !', Response::HTTP_BAD_REQUEST);
+//                    }
+//                }
+//
+//                if ($curentTime > '18:30') {
+//                    if ($this->checkDeVaBacang($ticket['type'])) {
+//                        return $this->sendError('Đề và Ba Càng chỉ được xóa trước 18h30 cùng ngày!', Response::HTTP_BAD_REQUEST);
+//                    }
+//                }
+//            }
             $this->updatePoint($ticket, $ticket['diem_tien'], true);
             $ticketRemove = Ticket::where('id', $id)->delete();
             if ($ticketRemove) {
