@@ -41,7 +41,7 @@ class ScheduleCheckDe extends Command {
      * @return mixed
      */
     public function handle() {
-        $currentDate = Carbon::now()->subDay()->format('d-m-Y');
+        $currentDate = Carbon::now()->format('d-m-Y');
         $daily       = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
