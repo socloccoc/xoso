@@ -223,7 +223,7 @@ class TicketApiController extends BaseApiController {
     public function destroy($id) {
         try {
             DB::beginTransaction();
-            $ticket = Ticket::where('id', $id)->where('status', 0)->first();
+            $ticket = Ticket::where('id', $id)->first();
             if (empty($ticket)) {
                 $this->sendError('Ticket không tồn tại hoặc đã hết hạn !', Response::HTTP_NOT_FOUND);
             }
