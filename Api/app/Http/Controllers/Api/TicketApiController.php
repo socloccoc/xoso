@@ -84,11 +84,11 @@ class TicketApiController extends BaseApiController {
             if ($ticket) {
                 $this->updateMoneyIn($request['customer_daily_id'], $request['fee']);
                 $this->updatePoint($ticket, $ticket['diem_tien'], false);
-                if(in_array($request['customer_daily_id'], $customerDailyTest)) {
-                    // calculate
-                    $calculateService = app(CalculationsForTestService::class);
-                    $calculateService->handle();
-                }
+//                if(in_array($request['customer_daily_id'], $customerDailyTest)) {
+//                    // calculate
+//                    $calculateService = app(CalculationsForTestService::class);
+//                    $calculateService->handle();
+//                }
                 DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
@@ -203,8 +203,8 @@ class TicketApiController extends BaseApiController {
             if ($ticket) {
                 $ticket = Ticket::where('id', $id)->where('status', 0)->first();
                 $this->updatePoint($ticket, $ticket['diem_tien'], false);
-                $calculateService = app(CalculationsForTestService::class);
-                $calculateService->handle();
+//                $calculateService = app(CalculationsForTestService::class);
+//                $calculateService->handle();
                 DB::commit();
                 return $this->sendResponse($ticket, Response::HTTP_OK);
             }
@@ -249,8 +249,8 @@ class TicketApiController extends BaseApiController {
             $ticketRemove = Ticket::where('id', $id)->delete();
             if ($ticketRemove) {
                 $this->updateMoneyIn($ticket['customer_daily_id'], -$ticket['fee']);
-                $calculateService = app(CalculationsForTestService::class);
-                $calculateService->handle();
+//                $calculateService = app(CalculationsForTestService::class);
+//                $calculateService->handle();
                 DB::commit();
                 return $this->sendResponse($ticketRemove, Response::HTTP_OK);
             }
