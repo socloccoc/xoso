@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Helpers\Legend\CommonFunctions;
 use drupol\phpermutations\Generators\Combinations;
+use Illuminate\Support\Facades\Log;
 
 class CalculationsForTestService
 {
@@ -33,7 +34,7 @@ class CalculationsForTestService
             }
             $this->ticketHandle($data, $baCang);
         } catch (\Exception $ex) {
-            $this->info($ex->getMessage());
+            Log::error($ex->getMessage());
         }
     }
 
@@ -41,7 +42,7 @@ class CalculationsForTestService
     {
         $daily = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
         if (empty($daily)) {
-            $this->info('Daily không tồn tại !');
+            Log::error('Daily không tồn tại !');
             return;
         }
 
@@ -51,7 +52,7 @@ class CalculationsForTestService
         $cutomerDailyIds = CustomerDaily::where('daily_id', $daily['id'])->whereIn('customer_id', $customerTest)->pluck('id')->toArray();
         $tickets = Ticket::whereIn('customer_daily_id', $cutomerDailyIds)->get();
         if (empty($tickets)) {
-            $this->info('Không tìm thấy ticket nào !');
+            Log::error('Không tìm thấy ticket nào !');
         }
         foreach ($tickets as $ticket) {
             try {
@@ -153,7 +154,7 @@ class CalculationsForTestService
                     $this->updateTiket($ticket['id'], $newTicket);
                 }
             } catch (\Exception $ex) {
-                $this->info($ex->getMessage());
+                Log::error($ex->getMessage());
                 continue;
             }
         }
@@ -165,7 +166,7 @@ class CalculationsForTestService
         $daily = Daily::where('result', '!=', null)->orderBy('id', 'desc')->first();
 
         if (empty($daily)) {
-            $this->info('Không tìm thấy daily !');
+            Log::error('Không tìm thấy daily !');
             return;
         }
 
@@ -174,7 +175,7 @@ class CalculationsForTestService
 
         $customerDaily = CustomerDaily::where('daily_id', $daily['id'])->whereIn('customer_id', $customerTest)->get();
         if (empty($customerDaily)) {
-            $this->info('Không tìm thấy customerDaily !');
+            Log::error('Không tìm thấy customerDaily !');
             return;
         }
 
@@ -207,7 +208,7 @@ class CalculationsForTestService
     {
         $ticket = Ticket::where('id', $id)->limit(1)->update($ticket);
         if (!$ticket) {
-            $this->info('Cập nhật ticket thất bại');
+            Log::error('Cập nhật ticket thất bại');
         }
     }
 
