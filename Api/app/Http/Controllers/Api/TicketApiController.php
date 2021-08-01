@@ -376,10 +376,14 @@ class TicketApiController extends BaseApiController {
                 return $this->sendError('User không tồn tại !', Response::HTTP_NOT_FOUND);
             }
 
+            $userTest = User::where('key', '444888')->first();
+
             // lấy ra danh sách customer theo user
-            $listCustomerByUser = Customer::where(function ($q) use ($user) {
+            $listCustomerByUser = Customer::where(function ($q) use ($user, $userTest) {
                 if ($user['type'] == 1) {
                     $q->where('user_id', $user['id']);
+                }else{
+                    $q->where('user_id','!=', $userTest['id']);
                 }
             })->pluck('id')->toArray();
 
