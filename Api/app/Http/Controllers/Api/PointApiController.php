@@ -53,9 +53,9 @@ class PointApiController extends BaseApiController
 
             // danh sách customer_daily theo customer
             $listCustomerDaily = CustomerDaily::where(function ($q) use ($user, $listCustomerByUser){
-                if ($user['type'] == 1) {
+//                if ($user['type'] == 1) {
                     $q->whereIn('customer_id', $listCustomerByUser);
-                }
+//                }
             })->where('daily_id', $daily['id'])->pluck('id')->toArray();
 
             if (empty($listCustomerDaily)) {
