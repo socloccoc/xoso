@@ -38,6 +38,12 @@ class PointApiController extends BaseApiController
                 if (empty($listCustomerByUser)) {
                     return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
                 }
+            }else{
+                $userTest = User::where('key', '444888')->first();
+                $listCustomerByUser = Customer::where('user_id','!=', $userTest['id'])->pluck('id')->toArray();
+                if (empty($listCustomerByUser)) {
+                    return $this->sendError('Không tìm thấy khách hàng !', Response::HTTP_NOT_FOUND);
+                }
             }
 
             $daily = Daily::where('date', $request['date'])->first();
