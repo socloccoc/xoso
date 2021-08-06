@@ -24,47 +24,47 @@ class Kernel extends ConsoleKernel {
      */
     protected function schedule(Schedule $schedule) {
 
-//        $scheduleSetting = ScheduleSetting::where('id', 1)->first();
-//
-//        foreach (['18:40', '18:55'] as $time) {
-//            $schedule->command('calculate:start')
-//                ->dailyAt($time)->appendOutputTo(storage_path('logs/calculate.log'));
-//        }
-//
-//        $schedule->command('daily:start')
-//            ->dailyAt('18:45')->appendOutputTo(storage_path('logs/daily.log'));
-//
-//        $schedule->command('checkLo:start')
-//            ->dailyAt(trim($scheduleSetting['lov1']))->appendOutputTo(storage_path('logs/checkLo.log'));
-//
-//        $schedule->command('checkLov2:start')
-//            ->dailyAt(trim($scheduleSetting['lov2']))->appendOutputTo(storage_path('logs/checkLov2.log'));
-//
-//        $schedule->command('checkDe:start')
-//            ->dailyAt(trim($scheduleSetting['dev1']))->appendOutputTo(storage_path('logs/checkDe.log'));
-//
-//        $schedule->command('checkDeV2:start')
-//            ->dailyAt(trim($scheduleSetting['dev2']))->appendOutputTo(storage_path('logs/checkDev2.log'));
-//
-//        $schedule->command('save:result')
-//            ->dailyAt('18:50')->appendOutputTo(storage_path('logs/result.log'));
-//
-//        $schedule->command('result:get')
-//            ->dailyAt('18:55')->appendOutputTo(storage_path('logs/result_get.log'));
-//
-//        $schedule->command('numbers:get')
-//            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/numbers_get.log'));
-//
-//        $schedule->command('de:analytic')
-//            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/analytic_de.log'));
-//
-//        $schedule->command('calculate_test:start')
-//            ->everyMinute()->appendOutputTo(storage_path('logs/calculate_test.log'));
-//
-//        foreach (['18:41', '19:00'] as $time) {
-//            $schedule->command('checkResult:start')
-//                ->dailyAt($time)->appendOutputTo(storage_path('logs/checkResult.log'));
-//        }
+        $scheduleSetting = ScheduleSetting::where('id', 1)->first();
+
+        foreach (['18:40', '18:55'] as $time) {
+            $schedule->command('calculate:start')
+                ->dailyAt($time)->appendOutputTo(storage_path('logs/calculate.log'));
+        }
+
+        $schedule->command('daily:start')
+            ->dailyAt('18:45')->appendOutputTo(storage_path('logs/daily.log'));
+
+        $schedule->command('checkLo:start')
+            ->dailyAt(trim($scheduleSetting['lov1']))->appendOutputTo(storage_path('logs/checkLo.log'));
+
+        $schedule->command('checkLov2:start')
+            ->dailyAt(trim($scheduleSetting['lov2']))->appendOutputTo(storage_path('logs/checkLov2.log'));
+
+        $schedule->command('checkDe:start')
+            ->dailyAt(trim($scheduleSetting['dev1']))->appendOutputTo(storage_path('logs/checkDe.log'));
+
+        $schedule->command('checkDeV2:start')
+            ->dailyAt(trim($scheduleSetting['dev2']))->appendOutputTo(storage_path('logs/checkDev2.log'));
+
+        $schedule->command('save:result')
+            ->dailyAt('18:50')->appendOutputTo(storage_path('logs/result.log'));
+
+        $schedule->command('result:get')
+            ->dailyAt('18:55')->appendOutputTo(storage_path('logs/result_get.log'));
+
+        $schedule->command('numbers:get')
+            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/numbers_get.log'));
+
+        $schedule->command('de:analytic')
+            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/analytic_de.log'));
+
+        $schedule->command('calculate_test:start')
+            ->everyMinute()->appendOutputTo(storage_path('logs/calculate_test.log'));
+
+        foreach (['18:41', '19:00'] as $time) {
+            $schedule->command('checkResult:start')
+                ->dailyAt($time)->appendOutputTo(storage_path('logs/checkResult.log'));
+        }
 
     }
 
