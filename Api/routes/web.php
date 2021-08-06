@@ -20,6 +20,7 @@ Route::group(['prefix' => 'ajax'], function () {
     Route::post('/de', 'AjaxController@De');
     Route::post('/lo', 'AjaxController@lo');
     Route::post('/cross-setting', 'AjaxController@crossSetting');
+    Route::post('/schedule-setting', 'AjaxController@scheduleSetting');
 });
 
 Route::get('/updated-activity', 'TelegramBotController@updatedActivity');

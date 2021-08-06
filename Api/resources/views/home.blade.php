@@ -207,7 +207,47 @@
                                 </div>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                        <div role="tabpanel" class="tab-pane" id="messages">
+                            <div class="card mt-5">
+                                <div class="card-header">Cài đặt thời gian gửi chỉ báo</div>
+
+                                <div class="card-body">
+                                    <form>
+                                        <div class="row">
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Lô Mới</label>
+                                                <input class="form-control" name="lov2" type="text" value="{{ $scheduleSetting['lov2'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Đề Mới</label>
+                                                <input class="form-control" name="dev2" type="text" value="{{ $scheduleSetting['dev2'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Lô Cũ</label>
+                                                <input class="form-control" name="lov1" type="text" value="{{ $scheduleSetting['lov1'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Đề Cũ</label>
+                                                <input class="form-control" name="dev1" type="text" value="{{ $scheduleSetting['dev1'] }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6 text-center">
+                                                <button type="button" class="btn btn-primary setting-schedule">Cập Nhật</button>
+                                            </div>
+                                            <div class="col-6 text-center">
+                                                <div class="alert alert-success alert-success-schedule" role="alert">
+                                                    Cập nhật thành công !
+                                                </div>
+                                                <div class="alert alert-danger alert-danger-schedule" role="alert">
+                                                    Có lỗi xảy ra, vui lòng thử lại sau !
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>

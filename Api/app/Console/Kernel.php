@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\ScheduleSetting;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -22,6 +23,9 @@ class Kernel extends ConsoleKernel {
      * @return void
      */
     protected function schedule(Schedule $schedule) {
+
+        $scheduleSetting = ScheduleSetting::where('id', 1)->first();
+
         foreach (['18:40', '18:55'] as $time) {
             $schedule->command('calculate:start')
                 ->dailyAt($time)->appendOutputTo(storage_path('logs/calculate.log'));
@@ -29,17 +33,18 @@ class Kernel extends ConsoleKernel {
 
         $schedule->command('daily:start')
             ->dailyAt('18:45')->appendOutputTo(storage_path('logs/daily.log'));
+
         $schedule->command('checkLo:start')
-            ->dailyAt('18:09')->appendOutputTo(storage_path('logs/checkLo.log'));
+            ->dailyAt(trim($scheduleSetting['lov1']))->appendOutputTo(storage_path('logs/checkLo.log'));
 
         $schedule->command('checkLov2:start')
-            ->dailyAt('18:10')->appendOutputTo(storage_path('logs/checkLov2.log'));
+            ->dailyAt(trim($scheduleSetting['lov2']))->appendOutputTo(storage_path('logs/checkLov2.log'));
 
         $schedule->command('checkDe:start')
-            ->dailyAt('18:19')->appendOutputTo(storage_path('logs/checkDe.log'));
+            ->dailyAt(trim($scheduleSetting['dev1']))->appendOutputTo(storage_path('logs/checkDe.log'));
 
         $schedule->command('checkDeV2:start')
-            ->dailyAt('18:20')->appendOutputTo(storage_path('logs/checkDev2.log'));
+            ->dailyAt(trim($scheduleSetting['dev2']))->appendOutputTo(storage_path('logs/checkDev2.log'));
 
         $schedule->command('save:result')
             ->dailyAt('18:50')->appendOutputTo(storage_path('logs/result.log'));
@@ -61,8 +66,6 @@ class Kernel extends ConsoleKernel {
                 ->dailyAt($time)->appendOutputTo(storage_path('logs/checkResult.log'));
         }
 
-//        $schedule->command('attack:start')
-//            ->everyFiveMinutes()->appendOutputTo(storage_path('logs/attack.log'));
     }
 
     /**

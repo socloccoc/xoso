@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Legend\CommonFunctions;
 use App\Models\CrossSetting;
+use App\Models\ScheduleSetting;
 use App\Models\SummaryResult;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -129,6 +130,27 @@ class AjaxController extends Controller
         try{
             $crossSetting = CrossSetting::where('id', $request['id'])->first();
             $crossSetting->update($request->except(['_token', 'id']));
+            return response()->json(['success' => true, 'data' => []]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'msg' => $ex->getMessage()]);
+        }
+    }
+
+    public function scheduleSetting(Request $request){
+        $validator = Validator::make($request->all(), [
+            'lov1' => 'required',
+            'dev1'  => 'required',
+            'lov2' => 'required',
+            'dev2'  => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'msg' => $validator->errors()->first()]);
+        }
+
+        try{
+            $crossSetting = ScheduleSetting::where('id', 1)->first();
+            $crossSetting->update($request->except(['_token']));
             return response()->json(['success' => true, 'data' => []]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'msg' => $ex->getMessage()]);

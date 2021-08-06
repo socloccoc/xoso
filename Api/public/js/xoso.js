@@ -73,7 +73,7 @@ $(document).ready(function () {
                 }
             }
         });
-    })
+    });
 
     $('.cross-setting-old').on('click', function () {
         let lo = $('input[name="lo_old"]').val();
@@ -93,6 +93,27 @@ $(document).ready(function () {
                 }else{
                     $('.alert-success-cross-old').hide();
                     $('.alert-danger-cross-old').show().html(result.msg);
+                }
+            }
+        });
+    });
+
+    $('.setting-schedule').on('click', function () {
+        let lov1 = $('input[name="lov1"]').val();
+        let dev1 = $('input[name="dev1"]').val();
+        let lov2 = $('input[name="lov2"]').val();
+        let dev2 = $('input[name="dev2"]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/ajax/schedule-setting',
+            data: {lov1: lov1, dev1: dev1, lov2: lov2, dev2: dev2},
+            success: function (result) {
+                if(result.success){
+                    $('.alert-danger-schedule').hide();
+                    $('.alert-success-schedule').show();
+                }else{
+                    $('.alert-success-schedule').hide();
+                    $('.alert-danger-schedule').show().html(result.msg);
                 }
             }
         });

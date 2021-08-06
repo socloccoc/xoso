@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CrossSetting;
+use App\Models\ScheduleSetting;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -26,6 +27,7 @@ class HomeController extends Controller
     {
         $crossSetting = CrossSetting::where('id', 1)->first();
         $crossSettingOld = CrossSetting::where('id', 2)->first();
-        return view('home', compact('crossSetting', 'crossSettingOld'));
+        $scheduleSetting = ScheduleSetting::where('id', 1)->first();
+        return view('home', compact('crossSetting', 'crossSettingOld', 'scheduleSetting'));
     }
 }
