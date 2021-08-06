@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Customer;
+use App\Models\CustomerDaily;
+use App\Models\Point;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,6 +89,20 @@ class UserApiController extends BaseApiController
             }
             $users = User::where('type', $request['type'])->get();
             return $this->sendResponse($users, Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function deleteUserTestData(Request $request)
+    {
+        try {
+            $userTest = User::where('key', '444888')->first();
+            $customerTest = Customer::where('user_id', $userTest['id'])->pluck('id')->toArray();
+            $listCustomerDailyTest = CustomerDaily::whereIn('customer_id', $customerTest)->pluck('id')->toArray();
+            Point::whereIn('customer_daily_id', $listCustomerDailyTest)->delete();
+            Ticket::whereIn('customer_daily_id', $listCustomerDailyTest)->delete();
+            return $this->sendResponse([], Response::HTTP_OK);
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
         }

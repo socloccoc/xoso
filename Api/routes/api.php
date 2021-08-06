@@ -29,6 +29,11 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         'uses' => 'UserApiController@getUserByParam',
     ]);
 
+    Route::post('deleteUserTestData', [
+        'as' => 'user.deleteUserTestData',
+        'uses' => 'UserApiController@deleteUserTestData',
+    ]);
+
     // customer
     Route::resource('customer', 'CustomerApiController');
     Route::post('getCustomerByUser', [
