@@ -25,6 +25,7 @@ class HomeController extends Controller
     public function index()
     {
         $crossSetting = CrossSetting::where('id', 1)->first();
-        return view('home', compact('crossSetting'));
+        $crossSettingOld = CrossSetting::where('id', 2)->first();
+        return view('home', compact('crossSetting', 'crossSettingOld'));
     }
 }

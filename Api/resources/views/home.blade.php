@@ -110,7 +110,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="profile">
                             <div class="card mt-5">
-                                <div class="card-header">Cross Setting</div>
+                                <div class="card-header">Mới</div>
 
                                 <div class="card-body">
                                     <form>
@@ -150,6 +150,55 @@
                                                     Cập nhật thành công !
                                                 </div>
                                                 <div class="alert alert-danger alert-danger-cross" role="alert">
+                                                    Có lỗi xảy ra, vui lòng thử lại sau !
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card mt-5">
+                                <div class="card-header">Cũ</div>
+
+                                <div class="card-body">
+                                    <form>
+                                        <div class="row">
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Lô</label>
+                                                <input class="form-control" name="lo_old" type="number" value="{{ $crossSettingOld['lo'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Đề</label>
+                                                <input class="form-control" name="de_old" type="number" value="{{ $crossSettingOld['de'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Xiên 2</label>
+                                                <input class="form-control" name="xien2_old" type="number" value="{{ $crossSettingOld['xien2'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Ba Càng</label>
+                                                <input class="form-control" name="bacang_old" type="number" value="{{ $crossSettingOld['bacang'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Xiên 3</label>
+                                                <input class="form-control" name="xien3_old" type="number" value="{{ $crossSettingOld['xien3'] }}" required>
+                                            </div>
+                                            <div class="form-group col-6"></div>
+                                            <div class="form-group col-6">
+                                                <label for="nhi_1">Xiên 4</label>
+                                                <input class="form-control" name="xien4_old" type="number" value="{{ $crossSettingOld['xien4'] }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6 text-center">
+                                                <button type="button" class="btn btn-primary cross-setting-old">Cập Nhật</button>
+                                            </div>
+                                            <div class="col-6 text-center">
+                                                <div class="alert alert-success alert-success-cross-old" role="alert">
+                                                    Cập nhật thành công !
+                                                </div>
+                                                <div class="alert alert-danger alert-danger-cross-old" role="alert">
                                                     Có lỗi xảy ra, vui lòng thử lại sau !
                                                 </div>
                                             </div>

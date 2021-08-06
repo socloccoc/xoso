@@ -13,7 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
-class ScheduleCheckLoV2 extends Command {
+class ScheduleCheckLoV2 extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -33,7 +34,8 @@ class ScheduleCheckLoV2 extends Command {
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -42,10 +44,11 @@ class ScheduleCheckLoV2 extends Command {
      *
      * @return mixed
      */
-    public function handle() {
+    public function handle()
+    {
 
         $currentDate = Carbon::now()->format('d-m-Y');
-        $daily       = Daily::where('date', $currentDate)->first();
+        $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
             return false;
@@ -74,28 +77,24 @@ class ScheduleCheckLoV2 extends Command {
             ->groupBy('points.num')
             ->orderBy('sum', 'desc')
             ->get();
-        $loMsg        = "<b>Lo.</b> \n";
-        $xienMsg      = "";
-        $loRecomMsg   = "<b>Lo.</b> \n";
+        $loMsg = "<b>Lo.</b> \n";
+        $xienMsg = "";
+        $loRecomMsg = "<b>Lo.</b> \n";
         $xienRecomMsg = "";
 
-        $xiemCham   = $this->getMsgCham($xiens, 300000, $xienMsg, $xienRecomMsg);
-        $locham   = $this->getMsgCham($los, 200, $loMsg, $loRecomMsg, true);
+        $xiemCham = $this->getMsgCham($xiens, 300000, $xienMsg, $xienRecomMsg);
+        $locham = $this->getMsgCham($los, 200, $loMsg, $loRecomMsg, true);
 
         $xien = $this->getMsg($xiens, 300000, $xienMsg, $xienRecomMsg);
-        $lo   = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
+        $lo = $this->getMsg($los, 200, $loMsg, $loRecomMsg, true);
 
         $textCham = ""
             . (strlen($locham) > 15 ? $locham : '')
             . (strlen($xiemCham) > 15 ? str_replace('-', '-', $xiemCham) : '');
 
-        $text = ""
-        . (strlen($lo[0]) > 15 ? $lo[0] : '')
-        . (strlen($xien[0]) > 15 ? str_replace('-', '-', $xien[0]) : '');
-
         $textRecom = ""
-        . (strlen($lo[1]) > 15 ? $lo[1] : '')
-        . (strlen($xien[1]) > 15 ? str_replace('-', '-', $xien[1]) : '');
+            . (strlen($lo[1]) > 15 ? $lo[1] : '')
+            . (strlen($xien[1]) > 15 ? str_replace('-', '-', $xien[1]) : '');
 
         Telegram::sendMessage([
             'chat_id'    => '-1001466757473',
@@ -112,18 +111,6 @@ class ScheduleCheckLoV2 extends Command {
         Telegram::sendMessage([
             'chat_id'    => '-1001466757473',
             'parse_mode' => 'HTML',
-            'text'       => "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>",
-        ]);
-
-        Telegram::sendMessage([
-            'chat_id'    => '-1001466757473',
-            'parse_mode' => 'HTML',
-            'text'       => $text,
-        ]);
-
-        Telegram::sendMessage([
-            'chat_id'    => '-1001466757473',
-            'parse_mode' => 'HTML',
             'text'       => "<b>Khuyến nghị " . $currentDate . "</b>"
         ]);
 
@@ -135,7 +122,8 @@ class ScheduleCheckLoV2 extends Command {
 
     }
 
-    public function getMsgCham($data, $cross, $msg1, $msg2, $islo = false) {
+    public function getMsgCham($data, $cross, $msg1, $msg2, $islo = false)
+    {
         $arrs = [];
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
@@ -143,7 +131,7 @@ class ScheduleCheckLoV2 extends Command {
                 if ($i < count($data) - 1) {
                     if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
                         $arrs[$data[$i]['sum']] = $nums;
-                        $nums                   = [];
+                        $nums = [];
                     }
                 } else {
                     if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
@@ -154,28 +142,28 @@ class ScheduleCheckLoV2 extends Command {
                 }
             }
 
-            $xi2kn = '<b>Xien2.</b>'."\n";
-            $xi3kn = '<b>Xien3.</b>'."\n";
-            $xi4kn = '<b>Xien4.</b>'."\n";
+            $xi2kn = '<b>Xien2.</b>' . "\n";
+            $xi3kn = '<b>Xien3.</b>' . "\n";
+            $xi4kn = '<b>Xien4.</b>' . "\n";
             $aList = $this->Alist();
 
             foreach ($arrs as $ind => $arr) {
 
                 $divisor = $islo ? 1 : 1000;
-                $unit    = $islo ? 'd.' : 'n.';
+                $unit = $islo ? 'd.' : 'n.';
                 if ($islo) {
 
                     $k = $ind / $divisor;
 
                     // kiểm tra xem có ở trong A list hay không
                     $arr_new = [];
-                    foreach ($arr as $it){
-                        if(in_array($it, $aList)){
+                    foreach ($arr as $it) {
+                        if (in_array($it, $aList)) {
                             $arr_new[] = $it;
                         }
                     }
 
-                    if(!empty($arr_new)){
+                    if (!empty($arr_new)) {
                         $msg2 .= implode(",", $arr_new) . 'x' . $k . $unit . "\n";
                     }
 
@@ -183,24 +171,24 @@ class ScheduleCheckLoV2 extends Command {
 
                 if (!$islo) {
 
-                    foreach ($arr as $item){
+                    foreach ($arr as $item) {
                         $item = trim($item);
                         $check = $this->checkExist($aList, $item);
-                        if(substr_count($item, '-') == 1){
+                        if (substr_count($item, '-') == 1) {
                             if ($check) {
                                 $n = ($ind) / $divisor;
                                 $xi2kn .= $item . 'x' . $n . $unit . "\n";
                             }
                         }
 
-                        if(substr_count($item, '-') == 2){
+                        if (substr_count($item, '-') == 2) {
                             if ($check) {
                                 $m = ($ind) / $divisor;
                                 $xi3kn .= $item . 'x' . $m . $unit . "\n";
                             }
                         }
 
-                        if(substr_count($item, '-') == 3){
+                        if (substr_count($item, '-') == 3) {
                             if ($check) {
                                 $l = ($ind) / $divisor;
                                 $xi4kn .= $item . 'x' . $l . $unit . "\n";
@@ -212,16 +200,16 @@ class ScheduleCheckLoV2 extends Command {
                 }
 
             }
-            if(!$islo) {
-                if(strlen($xi2kn) > 15){
+            if (!$islo) {
+                if (strlen($xi2kn) > 15) {
                     $msg2 .= $xi2kn;
                 }
 
-                if(strlen($xi3kn) > 15){
+                if (strlen($xi3kn) > 15) {
                     $msg2 .= $xi3kn;
                 }
 
-                if(strlen($xi4kn) > 15){
+                if (strlen($xi4kn) > 15) {
                     $msg2 .= $xi4kn;
                 }
             }
@@ -230,8 +218,8 @@ class ScheduleCheckLoV2 extends Command {
         return $msg2;
     }
 
-
-    public function getMsg($data, $cross, $msg1, $msg2, $islo = false) {
+    public function getMsg($data, $cross, $msg1, $msg2, $islo = false)
+    {
         $arrs = [];
         $crossSetting = CrossSetting::where('id', 1)->first();
         if (!empty($data)) {
@@ -240,7 +228,7 @@ class ScheduleCheckLoV2 extends Command {
                 if ($i < count($data) - 1) {
                     if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
                         $arrs[$data[$i]['sum']] = $nums;
-                        $nums                   = [];
+                        $nums = [];
                     }
                 } else {
                     if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
@@ -251,48 +239,41 @@ class ScheduleCheckLoV2 extends Command {
                 }
             }
 
-            $xi2 = '<b>Xien2.</b>'."\n";
-            $xi3 = '<b>Xien3.</b>'."\n";
-            $xi4 = '<b>Xien4.</b>'."\n";
-
-            $xi2kn = '<b>Xien2.</b>'."\n";
-            $xi3kn = '<b>Xien3.</b>'."\n";
-            $xi4kn = '<b>Xien4.</b>'."\n";
+            $xi2kn = '<b>Xien2.</b>' . "\n";
+            $xi3kn = '<b>Xien3.</b>' . "\n";
+            $xi4kn = '<b>Xien4.</b>' . "\n";
             $aList = $this->Alist();
 
             foreach ($arrs as $ind => $arr) {
 
                 $divisor = $islo ? 1 : 1000;
-                $unit    = $islo ? 'd.' : 'n.';
+                $unit = $islo ? 'd.' : 'n.';
                 if ($islo) {
                     $cross = $crossSetting['lo'];
-                    if($ind >= $cross){
-                        $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
-                    }
 
                     $k = $ind / $divisor;
 
-                    if($k < 10) continue;
+                    if ($k < 10) continue;
 
                     // kiểm tra xem có ở trong A list hay không
                     $arr_new = [];
                     $arr_new_2 = [];
-                    foreach ($arr as $it){
-                        if(!in_array($it, $aList)){
+                    foreach ($arr as $it) {
+                        if (!in_array($it, $aList)) {
                             $arr_new[] = $it;
-                        }else{
-                            if($ind > 600){
-                                $k2 = ($ind - 600) / $divisor > 10 ? ($ind-600) / $divisor : 10;
+                        } else {
+                            if ($ind > $cross) {
+                                $k2 = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
                                 $arr_new_2[] = $it;
                             }
                         }
                     }
 
-                    if(!empty($arr_new)){
+                    if (!empty($arr_new)) {
                         $msg2 .= implode(",", $arr_new) . 'x' . $k . $unit . "\n";
                     }
 
-                    if(!empty($arr_new_2)){
+                    if (!empty($arr_new_2)) {
                         $msg2 .= implode(",", $arr_new_2) . 'x' . $k2 . $unit . "\n";
                     }
 
@@ -300,42 +281,49 @@ class ScheduleCheckLoV2 extends Command {
 
                 if (!$islo) {
 
-                    foreach ($arr as $item){
+                    foreach ($arr as $item) {
                         $item = trim($item);
                         $check = $this->checkExist($aList, $item);
-                        if(substr_count($item, '-') == 1){
+                        if (substr_count($item, '-') == 1) {
                             $cross = $crossSetting['xien2'];
-                            if($ind >= $cross) {
-                                $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                                if (!$check) {
-                                    $n = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
-                                    $xi2kn .= $item . 'x' . $n . $unit . "\n";
+                            if (!$check) {
+                                $n = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
+                                $xi2kn .= $item . 'x' . $n . $unit . "\n";
+                            } else {
+                                if ($ind > $cross) {
+                                    $n2 = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                                    $xi2kn .= $item . 'x' . $n2 . $unit . "\n";
                                 }
                             }
+
                         }
 
-                        if(substr_count($item, '-') == 2){
+                        if (substr_count($item, '-') == 2) {
                             $cross = $crossSetting['xien3'];
-                            if($ind >= $cross) {
-                                $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                                $cross_x3 = 100000;
-                                if (!$check) {
-                                    $m = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
-                                    $xi3kn .= $item . 'x' . $m . $unit . "\n";
+                            if (!$check) {
+                                $m = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
+                                $xi3kn .= $item . 'x' . $m . $unit . "\n";
+                            } else {
+                                if ($ind > $cross) {
+                                    $m2 = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                                    $xi3kn .= $item . 'x' . $m2 . $unit . "\n";
                                 }
                             }
+
                         }
 
-                        if(substr_count($item, '-') == 3){
+                        if (substr_count($item, '-') == 3) {
                             $cross = $crossSetting['xien4'];
-                            if($ind >= $cross) {
-                                $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                                $cross_x4 = 50000;
-                                if (!$check) {
-                                    $l = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
-                                    $xi4kn .= $item . 'x' . $l . $unit . "\n";
+                            if (!$check) {
+                                $l = ($ind) / $divisor > 10 ? ($ind) / $divisor : 10;
+                                $xi4kn .= $item . 'x' . $l . $unit . "\n";
+                            } else {
+                                if ($ind > $cross) {
+                                    $l2 = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                                    $xi4kn .= $item . 'x' . $l2 . $unit . "\n";
                                 }
                             }
+
                         }
 
                     }
@@ -343,26 +331,16 @@ class ScheduleCheckLoV2 extends Command {
                 }
 
             }
-            if(!$islo) {
-                if(strlen($xi2) > 15){
-                    $msg1 .= $xi2;
-                }
-                if(strlen($xi3) > 15){
-                    $msg1 .= $xi3;
-                }
-                if(strlen($xi4) > 15){
-                    $msg1 .= $xi4;
-                }
-                ///////
-                if(strlen($xi2kn) > 15){
+            if (!$islo) {
+                if (strlen($xi2kn) > 15) {
                     $msg2 .= $xi2kn;
                 }
 
-                if(strlen($xi3kn) > 15){
+                if (strlen($xi3kn) > 15) {
                     $msg2 .= $xi3kn;
                 }
 
-                if(strlen($xi4kn) > 15){
+                if (strlen($xi4kn) > 15) {
                     $msg2 .= $xi4kn;
                 }
             }
@@ -371,10 +349,11 @@ class ScheduleCheckLoV2 extends Command {
         return [$msg1, $msg2];
     }
 
-    public function checkExist($alist, $arr){
+    public function checkExist($alist, $arr)
+    {
         $arr = explode('-', $arr);
-        foreach ($arr as $it){
-            if(in_array($it, $alist)){
+        foreach ($arr as $it) {
+            if (in_array($it, $alist)) {
                 return true;
             }
         }
@@ -386,7 +365,7 @@ class ScheduleCheckLoV2 extends Command {
         // lấy những số mà 6 ngày chưa về
         $results = SummaryResult::orderBy('id', 'desc')->select('dac_biet', 'nhat', 'nhi_1', 'nhi_2', 'ba_1', 'ba_2', 'ba_3', 'ba_4', 'ba_5', 'ba_6',
             'tu_1', 'tu_2', 'tu_3', 'tu_4', 'nam_1', 'nam_2', 'nam_3', 'nam_4', 'nam_5', 'nam_6', 'sau_1', 'sau_2', 'sau_3', 'bay_1', 'bay_2', 'bay_3', 'bay_4')
-            ->skip(0)->take(6)->get()->toArray();
+            ->skip(1)->take(6)->get()->toArray();
         $arr = [];
         foreach ($results as $result) {
             $a = array_values($result);

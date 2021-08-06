@@ -62,7 +62,7 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             url: '/ajax/cross-setting',
-            data: {lo: lo, de: de, bacang : bacang, xien2: xien2, xien3 : xien3, xien4: xien4},
+            data: {id: 1, lo: lo, de: de, bacang : bacang, xien2: xien2, xien3 : xien3, xien4: xien4},
             success: function (result) {
                 if(result.success){
                     $('.alert-danger-cross').hide();
@@ -70,6 +70,29 @@ $(document).ready(function () {
                 }else{
                     $('.alert-success-cross').hide();
                     $('.alert-danger-cross').show().html(result.msg);
+                }
+            }
+        });
+    })
+
+    $('.cross-setting-old').on('click', function () {
+        let lo = $('input[name="lo_old"]').val();
+        let de = $('input[name="de_old"]').val();
+        let bacang = $('input[name="bacang_old"]').val();
+        let xien2 = $('input[name="xien2_old"]').val();
+        let xien3 = $('input[name="xien3_old"]').val();
+        let xien4 = $('input[name="xien4_old"]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/ajax/cross-setting',
+            data: {id: 2, lo: lo, de: de, bacang : bacang, xien2: xien2, xien3 : xien3, xien4: xien4},
+            success: function (result) {
+                if(result.success){
+                    $('.alert-danger-cross-old').hide();
+                    $('.alert-success-cross-old').show();
+                }else{
+                    $('.alert-success-cross-old').hide();
+                    $('.alert-danger-cross-old').show().html(result.msg);
                 }
             }
         });

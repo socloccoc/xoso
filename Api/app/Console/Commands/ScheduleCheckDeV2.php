@@ -91,10 +91,6 @@ class ScheduleCheckDeV2 extends Command {
             . (strlen($decham) > 15 ? $decham : '')
             . (strlen($bacangcham) > 20 ? $bacangcham : '');
 
-        $text = ""
-        . (strlen($de[0]) > 15 ? $de[0] : '')
-        . (strlen($bacang[0]) > 20 ? $bacang[0] : '');
-
         $textRecom = ""
         . (strlen($de[1]) > 15 ? $de[1] : '')
         . (strlen($bacang[1]) > 20 ? $bacang[1] : '');
@@ -108,17 +104,6 @@ class ScheduleCheckDeV2 extends Command {
             'chat_id'    => '-1001466757473',
             'parse_mode' => 'HTML',
             'text'       => $textCham,
-        ]);
-
-        Telegram::sendMessage([
-            'chat_id'    => '-1001466757473',
-            'parse_mode' => 'HTML',
-            'text'       => "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>",
-        ]);
-        Telegram::sendMessage([
-            'chat_id'    => '-1001466757473',
-            'parse_mode' => 'HTML',
-            'text'       => $text,
         ]);
 
         Telegram::sendMessage([
@@ -207,10 +192,6 @@ class ScheduleCheckDeV2 extends Command {
                 }
             }
             foreach ($arrs as $ind => $arr) {
-                if ($ind >= $cross) {
-                    $msg1 .= implode(',', $arr) . 'x' . $ind / 1000 . 'n.' . "\n";
-                }
-
                 if ($isDe) {
                     $n = ($ind) / 1000 / 10 * 10;
                     if($n > 0) {
@@ -296,7 +277,7 @@ class ScheduleCheckDeV2 extends Command {
 
     public function deMin()
     {
-        $resultYesterday = SummaryResult::orderBy('id', 'DESC')->skip(0)->take(1)->first()->toArray();
+        $resultYesterday = SummaryResult::orderBy('id', 'DESC')->skip(1)->take(1)->first()->toArray();
         $nhi_1 = CommonFunctions::convertToBinary($resultYesterday['nhi_1']);
         $nhi_2 = CommonFunctions::convertToBinary($resultYesterday['nhi_2']);
 

@@ -127,8 +127,8 @@ class AjaxController extends Controller
         }
 
         try{
-            $crossSetting = CrossSetting::where('id', 1)->first();
-            $crossSetting->update($request->except('_token'));
+            $crossSetting = CrossSetting::where('id', $request['id'])->first();
+            $crossSetting->update($request->except(['_token', 'id']));
             return response()->json(['success' => true, 'data' => []]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'msg' => $ex->getMessage()]);

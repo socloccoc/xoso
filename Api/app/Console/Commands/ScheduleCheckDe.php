@@ -12,7 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
-class ScheduleCheckDe extends Command {
+class ScheduleCheckDe extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -32,7 +33,8 @@ class ScheduleCheckDe extends Command {
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -41,9 +43,10 @@ class ScheduleCheckDe extends Command {
      *
      * @return mixed
      */
-    public function handle() {
+    public function handle()
+    {
         $currentDate = Carbon::now()->format('d-m-Y');
-        $daily       = Daily::where('date', $currentDate)->first();
+        $daily = Daily::where('date', $currentDate)->first();
         if (empty($daily)) {
             $this->info('Daily không tồn tại !');
             return false;
@@ -74,58 +77,17 @@ class ScheduleCheckDe extends Command {
             ->orderBy('sum', 'desc')
             ->get();
 
-        $deMsg          = "<b>De. </b> \n";
-        $bacangMsg      = "<b>Bacang. </b> \n";
-        $deRecomMsg     = "<b>De. </b> \n";
+        $deMsg = "<b>De. </b> \n";
+        $bacangMsg = "<b>Bacang. </b> \n";
+        $deRecomMsg = "<b>De. </b> \n";
         $bacangRecomMsg = "<b>Bacang. </b> \n";
 
-//        foreach ($des as $point) {
-        //            if ($point['sum'] >= 200000) {
-        //                $deMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
-        //                if ($point['sum'] > 200000) {
-        //                    $deRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 200000) / 1000 . 'n.' . "\n";
-        //                }
-        //            }
-        //        }
-        //
-        //
-        //        foreach ($bacangs as $point) {
-        //            if ($point['sum'] >= 20000) {
-        //                $bacangMsg .= $point['num'] . 'x' . $point['sum'] / 1000 . 'n.' . "\n";
-        //                if ($point['sum'] > 20000) {
-        //                    $bacangRecomMsg .= $point['num'] . 'x' . ($point['sum'] - 20000) / 1000 . 'n.' . "\n";
-        //                }
-        //            }
-        //        }
-        //
-        //        $text = "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>\n"
-        //            . (strlen($deMsg) > 15 ? $deMsg : '')
-        //            . (strlen($bacangMsg) > 20 ? $bacangMsg : '');
-        //
-        //        $textRecom = "<b>Khuyến nghị " . $currentDate . "</b>\n"
-        //            . (strlen($deRecomMsg) > 15 ? $deRecomMsg : '')
-        //            . (strlen($bacangRecomMsg) > 20 ? $bacangRecomMsg : '');
-
-        $de     = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
+        $de = $this->getMsg($des, 200000, $deMsg, $deRecomMsg, true);
         $bacang = $this->getMsg($bacangs, 20000, $bacangMsg, $bacangRecomMsg, false);
-        $text = ""
-        . (strlen($de[0]) > 15 ? $de[0] : '')
-        . (strlen($bacang[0]) > 20 ? $bacang[0] : '');
 
         $textRecom = ""
-        . (strlen($de[1]) > 15 ? $de[1] : '')
-        . (strlen($bacang[1]) > 20 ? $bacang[1] : '');
-
-        Telegram::sendMessage([
-            'chat_id'    => config('constants.CHANNEL_ID'),
-            'parse_mode' => 'HTML',
-            'text'       => "<b>Thông tin bộ số lớn ngày " . $currentDate . "</b>",
-        ]);
-        Telegram::sendMessage([
-            'chat_id'    => config('constants.CHANNEL_ID'),
-            'parse_mode' => 'HTML',
-            'text'       => $text,
-        ]);
+            . (strlen($de[1]) > 15 ? $de[1] : '')
+            . (strlen($bacang[1]) > 20 ? $bacang[1] : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
@@ -139,24 +101,25 @@ class ScheduleCheckDe extends Command {
         ]);
     }
 
-    public function getMsg($data, $cross, $msg1, $msg2, $isDe = true) {
+    public function getMsg($data, $cross, $msg1, $msg2, $isDe = true)
+    {
         $arrs = [];
-        $crossSetting = CrossSetting::where('id', 1)->first();
-        if($isDe){
+        $crossSetting = CrossSetting::where('id', 2)->first();
+        if ($isDe) {
             $cross = $crossSetting['de'];
-        }else{
+        } else {
             $cross = $crossSetting['bacang'];
         }
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 $nums[] = preg_replace('/\s+/', '', $data[$i]['num']);
-                if(count($data) == 1){
+                if (count($data) == 1) {
                     $arrs[$data[$i]['sum']] = $nums;
                 } else {
                     if ($i < count($data) - 1) {
                         if ($data[$i]['sum'] != $data[$i + 1]['sum']) {
                             $arrs[$data[$i]['sum']] = $nums;
-                            $nums                   = [];
+                            $nums = [];
                         }
                     } else {
                         if ($data[$i]['sum'] == $data[$i - 1]['sum']) {
@@ -168,22 +131,19 @@ class ScheduleCheckDe extends Command {
                 }
             }
             foreach ($arrs as $ind => $arr) {
-                if ($ind >= $cross) {
-                    $msg1 .= implode(',', $arr) . 'x' . $ind / 1000 . 'n.' . "\n";
-                    if ($ind > $cross) {
-                        if($isDe){
-                            $n = floor(($ind - $cross) / 1000 / 10)*10;
-                            if($n < 10){
-                                $n = 10;
-                            }
-                            $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
-                        }else{
-                            $m = ($ind - $cross) / 1000;
-                            if($m < 10){
-                                $m = 10;
-                            }
-                            $msg2 .= implode(',', $arr) . 'x' . $m . 'n.' . "\n";
+                if ($ind > $cross) {
+                    if ($isDe) {
+                        $n = floor(($ind - $cross) / 1000 / 10) * 10;
+                        if ($n < 10) {
+                            $n = 10;
                         }
+                        $msg2 .= implode(',', $arr) . 'x' . $n . 'n.' . "\n";
+                    } else {
+                        $m = ($ind - $cross) / 1000;
+                        if ($m < 10) {
+                            $m = 10;
+                        }
+                        $msg2 .= implode(',', $arr) . 'x' . $m . 'n.' . "\n";
                     }
                 }
             }
