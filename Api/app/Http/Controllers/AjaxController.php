@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Legend\CommonFunctions;
+use App\Models\CrossSetting;
 use App\Models\SummaryResult;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -106,6 +107,29 @@ class AjaxController extends Controller
             }
 
             return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'msg' => $ex->getMessage()]);
+        }
+    }
+
+    public function crossSetting(Request $request){
+        $validator = Validator::make($request->all(), [
+            'lo' => 'required|integer',
+            'de'  => 'required|integer',
+            'bacang'  => 'required|integer',
+            'xien2'  => 'required|integer',
+            'xien3'  => 'required|integer',
+            'xien4'  => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'msg' => $validator->errors()->first()]);
+        }
+
+        try{
+            $crossSetting = CrossSetting::where('id', 1)->first();
+            $crossSetting->update($request->except('_token'));
+            return response()->json(['success' => true, 'data' => []]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'msg' => $ex->getMessage()]);
         }

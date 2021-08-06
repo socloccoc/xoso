@@ -11,14 +11,17 @@
 |
  */
 
-Route::get('/', 'HomeController@index');
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+Route::get('/home', 'HomeController@index');
 Route::group(['prefix' => 'ajax'], function () {
     Route::post('/de', 'AjaxController@De');
     Route::post('/lo', 'AjaxController@lo');
+    Route::post('/cross-setting', 'AjaxController@crossSetting');
 });
 
 Route::get('/updated-activity', 'TelegramBotController@updatedActivity');
 
 Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');

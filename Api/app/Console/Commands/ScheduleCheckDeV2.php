@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Helpers\Legend\CommonFunctions;
+use App\Models\CrossSetting;
 use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
@@ -179,6 +180,12 @@ class ScheduleCheckDeV2 extends Command {
     public function getMsg($data, $cross, $msg1, $msg2, $isDe = true) {
         $deMin = $this->deMin();
         $arrs = [];
+        $crossSetting = CrossSetting::where('id', 1)->first();
+        if($isDe){
+            $cross = $crossSetting['de'];
+        }else{
+            $cross = $crossSetting['bacang'];
+        }
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 $nums[] = preg_replace('/\s+/', '', $data[$i]['num']);

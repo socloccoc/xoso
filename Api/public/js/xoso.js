@@ -50,4 +50,28 @@ $(document).ready(function () {
             }
         });
     });
+    
+    // cross setting
+    $('.cross-setting').on('click', function () {
+        let lo = $('input[name="lo"]').val();
+        let de = $('input[name="de"]').val();
+        let bacang = $('input[name="bacang"]').val();
+        let xien2 = $('input[name="xien2"]').val();
+        let xien3 = $('input[name="xien3"]').val();
+        let xien4 = $('input[name="xien4"]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/ajax/cross-setting',
+            data: {lo: lo, de: de, bacang : bacang, xien2: xien2, xien3 : xien3, xien4: xien4},
+            success: function (result) {
+                if(result.success){
+                    $('.alert-danger-cross').hide();
+                    $('.alert-success-cross').show();
+                }else{
+                    $('.alert-success-cross').hide();
+                    $('.alert-danger-cross').show().html(result.msg);
+                }
+            }
+        });
+    })
 });

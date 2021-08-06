@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\CrossSetting;
 use App\Models\Customer;
 use App\Models\CustomerDaily;
 use App\Models\Daily;
@@ -107,11 +108,11 @@ class ScheduleCheckLo extends Command {
 
         $text = ""
         . (strlen($lo[0]) > 15 ? $lo[0] : '')
-        . (strlen($xien[0]) > 15 ? str_replace('-', ' ', $xien[0]) : '');
+        . (strlen($xien[0]) > 15 ? str_replace('-', '-', $xien[0]) : '');
 
         $textRecom = ""
         . (strlen($lo[1]) > 15 ? $lo[1] : '')
-        . (strlen($xien[1]) > 15 ? str_replace('-', ' ', $xien[1]) : '');
+        . (strlen($xien[1]) > 15 ? str_replace('-', '-', $xien[1]) : '');
 
         Telegram::sendMessage([
             'chat_id'    => config('constants.CHANNEL_ID'),
@@ -141,6 +142,7 @@ class ScheduleCheckLo extends Command {
 
     public function getMsg($data, $cross, $msg1, $msg2, $islo = false) {
         $arrs = [];
+        $crossSetting = CrossSetting::where('id', 1)->first();
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 $nums[] = $data[$i]['num'];
@@ -158,50 +160,62 @@ class ScheduleCheckLo extends Command {
                 }
             }
 
-            $xi2 = '<b>Xi2.</b>'."\n";
-            $xi3 = '<b>Xi3.</b>'."\n";
-            $xi4 = '<b>Xi4.</b>'."\n";
+            $xi2 = '<b>Xien2.</b>'."\n";
+            $xi3 = '<b>Xien3.</b>'."\n";
+            $xi4 = '<b>Xien4.</b>'."\n";
 
-            $xi2kn = '<b>Xi2.</b>'."\n";
-            $xi3kn = '<b>Xi3.</b>'."\n";
-            $xi4kn = '<b>Xi4.</b>'."\n";
+            $xi2kn = '<b>Xien2.</b>'."\n";
+            $xi3kn = '<b>Xien3.</b>'."\n";
+            $xi4kn = '<b>Xien4.</b>'."\n";
             foreach ($arrs as $ind => $arr) {
                 $divisor = $islo ? 1 : 1000;
                 $unit    = $islo ? 'd.' : 'n.';
-                if ($ind >= $cross && $islo) {
-                    $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
-                    if ($ind > $cross) {
-                        $k = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
-                        $msg2 .= implode(",", $arr) . 'x' . $k . $unit . "\n";
+                if ($islo) {
+                    $cross = $crossSetting['lo'];
+                    if($ind >= $cross) {
+                        $msg1 .= implode(",", $arr) . 'x' . $ind / $divisor . $unit . "\n";
+                        if ($ind > $cross) {
+                            $k = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                            $msg2 .= implode(",", $arr) . 'x' . $k . $unit . "\n";
+                        }
                     }
                 }
 
                 if (!$islo) {
                     foreach ($arr as $item){
                         $item = trim($item);
-                        if(substr_count($item, '-') == 1 && $ind >= $cross){
-                            $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                            if ($ind > $cross) {
-                                $n = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
-                                $xi2kn .= $item . 'x' . $n . $unit . "\n";
+                        if(substr_count($item, '-') == 1){
+                            $cross = $crossSetting['xien2'];
+                            if($ind >= $cross) {
+                                $xi2 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                                if ($ind > $cross) {
+                                    $n = ($ind - $cross) / $divisor > 10 ? ($ind - $cross) / $divisor : 10;
+                                    $xi2kn .= $item . 'x' . $n . $unit . "\n";
+                                }
                             }
                         }
 
-                        if(substr_count($item, '-') == 2 && $ind >= 100000){
-                            $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                            $cross_x3 = 100000;
-                            if ($ind > $cross_x3) {
-                                $m = ($ind - $cross_x3) / $divisor > 10 ? ($ind - $cross_x3) / $divisor : 10;
-                                $xi3kn .= $item . 'x' . $m . $unit . "\n";
+                        if(substr_count($item, '-') == 2){
+                            $cross = $crossSetting['xien3'];
+                            if($ind >= $cross) {
+                                $xi3 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                                $cross_x3 = $cross;
+                                if ($ind > $cross_x3) {
+                                    $m = ($ind - $cross_x3) / $divisor > 10 ? ($ind - $cross_x3) / $divisor : 10;
+                                    $xi3kn .= $item . 'x' . $m . $unit . "\n";
+                                }
                             }
                         }
 
-                        if(substr_count($item, '-') == 3 && $ind >= 50000){
-                            $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
-                            $cross_x4 = 50000;
-                            if ($ind > $cross_x4) {
-                                $l = ($ind - $cross_x4) / $divisor > 10 ? ($ind - $cross_x4) / $divisor : 10;
-                                $xi4kn .= $item . 'x' . $l . $unit . "\n";
+                        if(substr_count($item, '-') == 3){
+                            $cross = $crossSetting['xien4'];
+                            if($ind >= $cross) {
+                                $xi4 .= $item . 'x' . $ind / $divisor . $unit . "\n";
+                                $cross_x4 = $cross;
+                                if ($ind > $cross_x4) {
+                                    $l = ($ind - $cross_x4) / $divisor > 10 ? ($ind - $cross_x4) / $divisor : 10;
+                                    $xi4kn .= $item . 'x' . $l . $unit . "\n";
+                                }
                             }
                         }
 
