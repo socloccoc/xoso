@@ -102,6 +102,7 @@ class UserApiController extends BaseApiController
             $listCustomerDailyTest = CustomerDaily::whereIn('customer_id', $customerTest)->pluck('id')->toArray();
             Point::whereIn('customer_daily_id', $listCustomerDailyTest)->delete();
             Ticket::whereIn('customer_daily_id', $listCustomerDailyTest)->delete();
+            CustomerDaily::whereIn('customer_id', $customerTest)->delete();
             return $this->sendResponse([], Response::HTTP_OK);
         } catch (\Exception $ex) {
             return $this->sendError($ex->getMessage(), $ex->getCode());
