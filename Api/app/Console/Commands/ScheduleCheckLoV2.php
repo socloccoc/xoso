@@ -365,7 +365,7 @@ class ScheduleCheckLoV2 extends Command
         // lấy những số mà 6 ngày chưa về
         $results = SummaryResult::orderBy('id', 'desc')->select('dac_biet', 'nhat', 'nhi_1', 'nhi_2', 'ba_1', 'ba_2', 'ba_3', 'ba_4', 'ba_5', 'ba_6',
             'tu_1', 'tu_2', 'tu_3', 'tu_4', 'nam_1', 'nam_2', 'nam_3', 'nam_4', 'nam_5', 'nam_6', 'sau_1', 'sau_2', 'sau_3', 'bay_1', 'bay_2', 'bay_3', 'bay_4')
-            ->skip(1)->take(6)->get()->toArray();
+            ->skip(0)->take(6)->get()->toArray();
         $arr = [];
         foreach ($results as $result) {
             $a = array_values($result);
