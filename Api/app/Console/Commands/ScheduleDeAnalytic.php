@@ -78,13 +78,13 @@ class ScheduleDeAnalytic extends Command
             }
 
             Telegram::sendMessage([
-                'chat_id'    => '-1001466757473',
+                'chat_id'    => '-1001568475242',
                 'parse_mode' => 'HTML',
                 'text'       => "<b>Thông đề bộ số xác suất thấp nhất. </b>",
             ]);
 
             Telegram::sendMessage([
-                'chat_id'    => '-1001466757473',
+                'chat_id'    => '-1001568475242',
                 'parse_mode' => 'HTML',
                 'text'       => $text,
             ]);
