@@ -68,7 +68,7 @@ class ScheduleGetNumbersToday extends Command
         // -1001466757473
         $t = '';
         foreach ($rl as $item){
-            $t .= $item."\n";
+            $t .= $item.",";
         }
 
         Telegram::sendMessage([
