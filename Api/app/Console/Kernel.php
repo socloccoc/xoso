@@ -55,10 +55,10 @@ class Kernel extends ConsoleKernel
             ->dailyAt('18:55')->appendOutputTo(storage_path('logs/result_get.log'));
 
         $schedule->command('numbers:get')
-            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/numbers_get.log'));
+            ->dailyAt('10:00')->appendOutputTo(storage_path('logs/numbers_get.log'));
 
         $schedule->command('de:analytic')
-            ->dailyAt('14:00')->appendOutputTo(storage_path('logs/analytic_de.log'));
+            ->dailyAt('10:00')->appendOutputTo(storage_path('logs/analytic_de.log'));
 
         $schedule->command('calculate_test:start')
             ->everyMinute()->appendOutputTo(storage_path('logs/calculate_test.log'));
