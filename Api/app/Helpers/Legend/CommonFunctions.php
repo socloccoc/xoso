@@ -15,7 +15,8 @@ class CommonFunctions
                 throw new \Exception('failed to initialize');
             }
 
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $proxy = '118.71.255.154:5678';
+
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -37,6 +38,8 @@ class CommonFunctions
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
             curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS4);
+            curl_setopt($ch, CURLOPT_PROXY, $proxy);
 
             $content = curl_exec($ch);
 

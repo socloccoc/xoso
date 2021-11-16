@@ -43,7 +43,7 @@ class ScheduleCheckResult extends Command {
      */
     public function handle() {
         try {
-            $currentDate = Carbon::now()->format('d-m-Y');
+            $currentDate = Carbon::now()->subDay()->format('d-m-Y');
             $users       = User::where('key', '!=', '444888')->get();
             $daily       = Daily::where('date', $currentDate)->first();
 
