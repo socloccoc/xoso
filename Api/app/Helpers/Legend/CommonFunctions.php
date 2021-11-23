@@ -15,7 +15,7 @@ class CommonFunctions
                 throw new \Exception('failed to initialize');
             }
 
-            $proxy = '1.53.137.84:4145';
+            $proxy = '113.176.195.145:4153';
 
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
